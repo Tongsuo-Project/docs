@@ -6,7 +6,7 @@ import rehypeKatex from 'rehype-katex';
 
 const config: Config = {
   title: '铜锁',
-  tagline: 'Tongsuo are cool',
+  tagline: 'Tongsuo are so cool',
   favicon: 'img/logo-white.png',
 
   // Set the production url of your site here
