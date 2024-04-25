@@ -10,10 +10,11 @@ const config: Config = {
   favicon: 'img/logo-white.png',
 
   // Set the production url of your site here
-  url: 'https://Tongsuo-Project.github.io/',
+  url: process.env.URL || 'https://Tongsuo-Project.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/docs',
+  // baseUrl: '/docs',
+  baseUrl: process.env.BASEURL || '/docs',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
