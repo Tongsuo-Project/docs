@@ -16,7 +16,7 @@
     "description": "The label for category Tutorial - Extras in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.铜锁": {
-    "message": "铜锁",
+    "message": "Tongsuo",
     "description": "The label for category 铜锁 in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.铜锁.link.generated-index.description": {
@@ -27,8 +27,44 @@
     "message": "RustyVault",
     "description": "The label for category RustyVault in sidebar tutorialSidebar"
   },
-  "sidebar.tutorialSidebar.category.RustyVault.link.generated-index.description": {
-    "message": "5 minutes to learn the most important Docusaurus concepts.",
-    "description": "The generated-index page description for category RustyVault in sidebar tutorialSidebar"
+  "sidebar.tutorialSidebar.category.编译相关": {
+    "message": "Compilation",
+    "description": "The label for category 编译相关 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.SSL/TLS 特性": {
+    "message": "SSL/TLS Features",
+    "description": "The label for category SSL/TLS 特性 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.商用密码（国密）特性": {
+    "message": "商用密码（国密）特性",
+    "description": "The label for category 商用密码（国密）特性 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.SM2 性能优化": {
+    "message": "SM2 性能优化",
+    "description": "The label for category SM2 性能优化 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.祖冲之": {
+    "message": "祖冲之",
+    "description": "The label for category 祖冲之 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.前沿密码学特性": {
+    "message": "前沿密码学特性",
+    "description": "The label for category 前沿密码学特性 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.零知识证明算法": {
+    "message": "零知识证明算法",
+    "description": "The label for category 零知识证明算法 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.同态加密算法": {
+    "message": "同态加密算法",
+    "description": "The label for category 同态加密算法 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.版本发布": {
+    "message": "Release Notes",
+    "description": "The label for category 版本发布 in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.贡献指南": {
+    "message": "Contribution Guide",
+    "description": "The label for category 贡献指南 in sidebar tutorialSidebar"
   }
 }
