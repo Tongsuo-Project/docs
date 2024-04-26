@@ -14,5 +14,13 @@
   "item.label.GitHub": {
     "message": "GitHub",
     "description": "Navbar item with label GitHub"
+  },
+  "item.label.版本发布": {
+    "message": "Release Notes",
+    "description": "Navbar item with label 版本发布"
+  },
+  "item.label.API": {
+    "message": "API",
+    "description": "Navbar item with label API"
   }
 }
