@@ -31,7 +31,7 @@ const sections: SectionInterface[] = [
     code: `
 - 中国商用密码算法：SM2、SM3、SM4、[祖冲之](https://www.yuque.com/tsdoc/ts/copzp3)等
 - 国际主流算法：ECDSA、RSA、AES、SHA等
-- 同态加密算法：[EC-ElGamal](https://www.yuque.com/tsdoc/misc/ec-elgamal)、[Paillier](https://www.yuque.com/tsdoc/misc/rdibad)等
+- 同态加密算法：[EC-ElGamal](https://www.yuque.com/tsdoc/misc/ec-elgamal)、[Paillier](https://www.yuque.com/tsdoc/misc/rdibad) 等
 - 后量子密码学*：LAC、NTRU、Saber、Dilithium等
 `,
     title: '密码学算法',
