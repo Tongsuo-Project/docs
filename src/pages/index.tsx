@@ -49,7 +49,7 @@ function OpenAtomBanner() {
         <div className="container text--center">
           <h3 className="hero__subtitle">
             铜锁/Tongsuo 是由
-            <a href="https://cncf.io/">开放原子开源基金会（OpenAtom Foundation）</a>
+            <a href="https://openatom.org/">开放原子开源基金会（OpenAtom Foundation）</a>
             孵化及运营的开源项目
           </h3>
           <h1 className="hero__logo">
