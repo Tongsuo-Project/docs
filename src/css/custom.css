@@ -13,6 +13,7 @@
   --ifm-color-primary-light: #3265ff;
   --ifm-color-primary-lighter: #406fff;
   --ifm-color-primary-lightest: #698eff;
+  --ifm-color-on-primary: #ffffff;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -24,4 +25,9 @@
   --ifm-color-primary-light: #2e87ff;
   --ifm-color-primary-lighter: #3c8fff;
   --ifm-color-primary-lightest: #65a6ff;
+  --ifm-color-on-primary: #ffffff;
+}
+
+.openatom-logo {
+  background: center no-repeat url('/img/openatom-logo.png');
 }

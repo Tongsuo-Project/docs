@@ -5,16 +5,16 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 const config: Config = {
-  title: '铜锁',
-  tagline: 'Tongsuo are so cool',
+  title: 'OpenAtom 铜锁/Tongsuo',
+  tagline: '现代密码学算法和安全通信协议的开源基础密码库',
   favicon: 'img/logo-white.png',
 
   // Set the production url of your site here
-  url: process.env.URL || 'https://Tongsuo-Project.github.io/',
+  url: process.env.URL || 'https://tongsuo.net',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   // baseUrl: '/docs',
-  baseUrl: process.env.BASEURL || '/docs',
+  baseUrl: process.env.BASEURL || '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -46,7 +46,7 @@ const config: Config = {
       'classic',
       {
         docs: {
-          routeBasePath: '/',
+          // routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           remarkPlugins: [remarkMath],
           rehypePlugins: [rehypeKatex],
@@ -66,7 +66,7 @@ const config: Config = {
           editUrl:
             'https://github.com/Tongsuo-Project/docs/tree/main',
         },
-        pages: false,
+        // pages: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -106,7 +106,10 @@ const config: Config = {
           label: '文档',
         },
         {to: '/blog', label: '博客', position: 'left'},
-        {to: '/release-note', label: '版本发布', position: 'right'},
+        {to: '/docs/minisuo', label: '铜锁迷你版', position: 'right'},
+        {to: '/docs/eco', label: '生态合作', position: 'right'},
+        {to: '/docs/release-note', label: '版本发布', position: 'right'},
+        {to: '/docs/developers/community', label: '社区', position: 'right'},
         {href: 'https://www.yuque.com/tsdoc/api', label: 'API', position: 'right'},
         {
           href: 'https://github.com/Tongsuo-Project/Tongsuo',
@@ -121,22 +124,42 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
-      logo: {
-        alt: 'OpenAtom Logo',
-        src: 'img/atom-logo.svg',
-        href: 'https://openatom.cn/',
-        width: 200,
+      links: [{
+        title: '文档',
+        items: [{
+            label: '关于铜锁',
+            to: '/docs',
+        },{
+            label: '文档贡献指南',
+            to: '/docs/developers/docs-deployment',
+        }],
+      }, {
+        title: '社区',
+        items: [{
+            label: '微信公众号: 铜锁密码学开源项目',
+            href: `/`,
+        }, {
+            label: '钉钉群号: 44810299',
+            href: '/',
+        }],
+      }, {
+        title: '更多',
+        items: [{
+          label: 'RustyVault',
+          href: `https://github.com/Tongsuo-Project/RustyVault`,
+        }, {
+          label: 'crates.io',
+          href: 'https://crates.io/crates/rusty_vault',
+        }],
       },
-      links: [
-        {
-            html: `
-            <div style="text-align: center;">
-            Tongsuo is a <a href="https://www.openatom.org/">OpenAtom Foundation</a> incubation project.
-            <div>
-              `,
-        },
-      ],
-      copyright: `Copyright © ${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus.`,
+    ],
+    logo: {
+      alt: 'OpenAtom Logo',
+      src: 'img/atom-logo.svg',
+      href: 'https://openatom.cn/',
+      // width: 200,
+    },
+    copyright: `Copyright © 2021-${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus. <br/><a href="https://beian.miit.gov.cn/">网站备案：京ICP备15032932号-36`,
     },
     prism: {
       additionalLanguages: [
