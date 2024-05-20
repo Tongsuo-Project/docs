@@ -103,9 +103,9 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: '文档',
+          label: '📑 文档',
         },
-        {to: '/blog', label: '博客', position: 'left'},
+        {to: '/blog', label: '🌐 博客', position: 'left'},
         {to: '/docs/minisuo', label: '铜锁迷你版', position: 'right'},
         {to: '/docs/eco', label: '生态合作', position: 'right'},
         {to: '/docs/release-note', label: '版本发布', position: 'right'},
@@ -124,31 +124,39 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
-      links: [{
+      links: [
+        {
         title: '文档',
         items: [{
-            label: '关于铜锁',
+            label: '📜 关于铜锁',
             to: '/docs',
         },{
-            label: '文档贡献指南',
+            label: '🔖  文档贡献指南',
             to: '/docs/developers/docs-deployment',
         }],
       }, {
         title: '社区',
-        items: [{
-            label: '微信公众号: 铜锁密码学开源项目',
-            href: `/`,
-        }, {
-            label: '钉钉群号: 44810299',
-            href: '/',
-        }],
-      }, {
+        items: [
+        {
+          html: `
+            <a class="footer-link footer__link-item">
+            📌 微信公众号 
+              <img src="img/tongsuo-public-qr.jpg" class="footer-hover-image" />
+            </a>
+          `,
+        },
+        {
+          label: '🔗 钉钉',
+          href: 'https://qr.dingtalk.com/action/joingroup?code=v1,k1,xVyEWk6BdAnER48i9DR8r0C2im4bAF64/NyQW5fqOz0=&_dt_no_comment=1&origin=11? 郭旭东邀请你加入钉钉群聊铜锁社区交流群，点击进入查看详情',
+        },],
+      }, 
+      {
         title: '更多',
         items: [{
-          label: 'RustyVault',
+          label: '🦀 RustyVault',
           href: `https://github.com/Tongsuo-Project/RustyVault`,
         }, {
-          label: 'crates.io',
+          label: '📦 Crates',
           href: 'https://crates.io/crates/rusty_vault',
         }],
       },
@@ -159,7 +167,7 @@ const config: Config = {
       href: 'https://openatom.cn/',
       // width: 200,
     },
-    copyright: `Copyright © 2021-${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus. <br/><a href="https://beian.miit.gov.cn/">网站备案：京ICP备15032932号-36`,
+    copyright: `Copyright © 2021-${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus. <br/><a class="footer__link-item" href="https://beian.miit.gov.cn/">网站备案：京ICP备15032932号-36`,
     },
     prism: {
       additionalLanguages: [

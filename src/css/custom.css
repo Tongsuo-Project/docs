@@ -31,3 +31,14 @@
 .openatom-logo {
   background: center no-repeat url('/img/openatom-logo.png');
 }
+
+.footer-hover-image {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    width: 10%;
+}
+
+.footer-link:hover .footer-hover-image {
+    display: block;
+}
