@@ -24,3 +24,19 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Test build website
         run: yarn build
+  
+  deploy:
+    name: Deploy to AliCloud OSS
+    needs: test-deploy
+    runs-on: ubuntu-latest
+    steps:
+        - name: Test check
+          run: ls
+        - uses: YangHanlin/oss-deployment-action@v1
+          with:
+            oss-endpoint: oss-cn-beijing.aliyuncs.com
+            oss-accesskey-id: ${{ secrets.ALIYUN_OSS_ACCESSKEY_ID }}
+            oss-accesskey-secret: ${{ secrets.ALIYUN_OSS_ACCESSKEY_SECRET }}
+            oss-path: oss://tongsuo-doc/
+            local-path: ./build
+            delete-first: true
