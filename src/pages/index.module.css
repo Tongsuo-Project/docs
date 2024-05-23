@@ -21,3 +21,11 @@
   align-items: center;
   justify-content: center;
 }
+
+.buttonDiv {
+  display: inline-block;
+}
+
+.openAtomLogo {
+  width: 900px;
+}
