@@ -9,7 +9,7 @@ import PlainButton from '../../components/buttons/PlainButton'
 const sections: SectionInterface[] = [
   {
     code: `
-- 符合 GM/T 0028《密码模块安全技术要求》的"软件密码模块安全一级"资质
+- 符合 GM/T 0028《密码模块安全技术要求》的"软件密码模块安全二级"资质
 - 符合 GM/T 0005-2021《随机性检测规范》
 `,
     title: '技术合规能力',
