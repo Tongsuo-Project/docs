@@ -4,6 +4,13 @@ import Cards, { CardInterface } from './components/Cards';
 
 const cards: CardInterface[] = [
   {
+    title: '高级应用安全密码模块（Linux 版）',
+    description:
+      '证书编号：GM003312220240523',
+    to: 'https://www.yuque.com/tsdoc/misc/st247r05s8b5dtct',
+    imagePath: 'img/validation-linux-lv2.jpeg',
+  },
+  {
     title: 'Android 移动端软件密码模块',
     description:
       '证书编号：GM003312220220743',
