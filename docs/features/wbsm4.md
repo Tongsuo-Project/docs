@@ -11,16 +11,16 @@ SM4白盒密码算法的算法设计、密码分析国内有丰富的研究成�
 
 ![image.png](img/wbsm4-compare.jpg)
 
-铜锁在SM4白盒算法实现选择了肖-来、白-武、WSISE三个方案，代码实现移植自Nexus-TYF的开源实现<sup>[6]</sup>，对代码进行重构完成在Tongsuo内集成。原代码包含了底层的矩阵运算库，实现了三个白盒算法的block块加密接口，铜锁通过KDF接口进行加密白盒密钥产生，并通过EVP接口支持白盒密钥的加密应用，支持ECB、CBC、CFB、OFB、CTR、CTR、GCM模式。ECB、CBC、CFB、OFB模式解密数据时，仍需使用原始的SM4密钥。<br>
+铜锁在SM4白盒算法实现选择了肖-来、白-武、WSISE三个方案，代码实现移植自Nexus-TYF的开源实现<sup>[6]</sup>，对代码进行重构完成在Tongsuo内集成。原代码包含了底层的矩阵运算库，实现了三个白盒算法的block块加密接口，铜锁通过KDF接口进行加密白盒密钥产生，并通过EVP接口支持白盒密钥的加密应用，支持ECB、CBC、CFB、OFB、CTR、CTR、GCM模式。ECB、CBC、CFB、OFB模式解密数据时，仍需使用原始的SM4密钥。
 
 ## 编译参数
-铜锁支持三种白盒算法模式，可根据需要通过编译参数开启：<br>
+铜锁支持三种白盒算法模式，可根据需要通过编译参数开启：  
 ```shell
 ./config enable-wbsm4-xiaolai enable-wbsm4-baiwu enable-wbsm4-wsise
 ```
 
 ## 命令行使用
-命令行可以进行白盒密钥产生，支持ECB、CBC模式加密，支持CTR模式加密及解密: <br>
+命令行可以进行白盒密钥产生，支持ECB、CBC模式加密，支持CTR模式加密及解密:   
 ```shell
 # 产生白盒密钥
 ./apps/openssl kdf -kdfopt key:0123456789abcdeffedcba9876543210 -cipher wbsm4-xiaolai -out wbsm4.key -binary wbsm4kdf
@@ -60,7 +60,7 @@ rv = EVP_EncryptUpdate(cipher_ctx, out, &outlen, in, inlen);
 ```
 
 ## 性能参数
-SM4白盒密码算法密钥占用较大的存储空间，在应用过程中需要预留充足的内存、磁盘空间，参见三个算法的密钥长度：<br>
+SM4白盒密码算法密钥占用较大的存储空间，在应用过程中需要预留充足的内存、磁盘空间，参见三个算法的密钥长度：
 
 | 白盒密码算法   | 密钥长度(字节) |
 |--------------|----------|
@@ -83,11 +83,11 @@ wbsm4-baiwu-cbc    40326.22k     5084.16k     5115.89k     5154.13k     5134.38k
 wbsm4-wsise-cbc     4366.73k      739.04k      740.51k      743.17k      745.47k      737.28k
 ```
 ## 参考文献
-[1] 肖雅莹,来学嘉 白盒密码及SMS4算法的白盒实现<br>
+[1] 肖雅莹,来学嘉 白盒密码及SMS4算法的白盒实现  
 [2] BAI Kunpeng,WU Chuankun A secure white-box SM4
-implementation<br>
-[3] 姚思,陈杰 SM4算法的一种新型白盒实现<br>
-[4] 林婷婷,来学嘉 对白盒SMS4实现的一种有效攻击<br>
-[4] 潘文伦,秦体红,贾音,张立廷 对两个SM4白盒方案的分析<br>
-[5] 张跃宇,徐东,陈杰 白盒SM4的分析与改进<br>
+implementation  
+[3] 姚思,陈杰 SM4算法的一种新型白盒实现  
+[4] 林婷婷,来学嘉 对白盒SMS4实现的一种有效攻击  
+[4] 潘文伦,秦体红,贾音,张立廷 对两个SM4白盒方案的分析  
+[5] 张跃宇,徐东,陈杰 白盒SM4的分析与改进  
 [6] https://github.com/Nexus-TYF
