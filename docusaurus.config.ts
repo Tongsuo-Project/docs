@@ -110,7 +110,6 @@ const config: Config = {
         {to: '/docs/eco', label: '生态合作', position: 'right'},
         {to: '/docs/release-note', label: '版本发布', position: 'right'},
         {to: '/docs/developers/community', label: '社区', position: 'right'},
-        {href: 'https://www.yuque.com/tsdoc/api', label: 'API', position: 'right'},
         {
           href: 'https://github.com/Tongsuo-Project/Tongsuo',
           label: 'GitHub',
