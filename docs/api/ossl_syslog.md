@@ -1,4 +1,4 @@
-# 概述
+# OSSL_syslog日志接口
 
 OSSL_syslog()函数用于向操作系统（syslog）输出日志，日志的类别为daemon。
 
