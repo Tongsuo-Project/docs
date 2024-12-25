@@ -3,12 +3,19 @@ import styles from './styles.module.css';
 import Cards, { CardInterface } from './components/Cards';
 
 const cards: CardInterface[] = [
+  // {
+  //   title: '高级应用安全密码模块（Linux 版）',
+  //   description:
+  //     '证书编号：GM003312220240523',
+  //   to: 'https://www.yuque.com/tsdoc/misc/st247r05s8b5dtct',
+  //   imagePath: 'img/validation-linux-lv2.jpeg',
+  // },
   {
-    title: '高级应用安全密码模块（Linux 版）',
+    title: '应用安全软件密码模块（Linux版）',
     description:
-      '证书编号：GM003312220240523',
+      '证书编号：GM003312220230044',
     to: 'https://www.yuque.com/tsdoc/misc/st247r05s8b5dtct',
-    imagePath: 'img/validation-linux-lv2.jpeg',
+    imagePath: 'img/validation-linux.png',
   },
   {
     title: 'Android 移动端软件密码模块',
@@ -23,13 +30,6 @@ const cards: CardInterface[] = [
       '证书编号：GM003312220230052',
     to: 'https://www.yuque.com/tsdoc/misc/st247r05s8b5dtct',
     imagePath: 'img/validation-ios.png',
-  },
-  {
-    title: '应用安全软件密码模块（Linux版）',
-    description:
-      '证书编号：GM003312220230044',
-    to: 'https://www.yuque.com/tsdoc/misc/st247r05s8b5dtct',
-    imagePath: 'img/validation-linux.png',
   },
 ];
 
