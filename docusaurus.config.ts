@@ -166,7 +166,7 @@ const config: Config = {
       href: 'https://openatom.cn/',
       // width: 200,
     },
-    copyright: `Copyright © 2021-${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus. <br/><a class="footer__link-item" href="https://beian.miit.gov.cn/">网站备案：京ICP备15032932号-36`,
+    copyright: `Copyright © 2021-${new Date().getFullYear()} OpenAtom Tongsuo Built with Docusaurus. <br/><a class="footer__link-item" href="https://beian.miit.gov.cn/">网站备案：京ICP备2020036654号-16`,
     },
     prism: {
       additionalLanguages: [
