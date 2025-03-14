@@ -24,9 +24,10 @@ https://github.com/Tongsuo-Project/Tongsuo/releases
 
 | 操作系统          | 文件               | 签名  |
 |---------------|------------------|-----|
-| Linux         | [curl-Linux](https://gitee.com/Tongsuo/download/raw/master/curl-Linux)       | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-Linux.asc) |
-| macOS(x86_64) | [curl-macOS](https://gitee.com/Tongsuo/download/raw/master/curl-macOS)       | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-macOS.asc) |
-| Windows       | [curl-Windows.exe](https://gitee.com/Tongsuo/download/raw/master/curl-Windows.exe) | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-Windows.exe.asc) |
+| Linux(x64)        | [curl-Linux-X64](https://gitee.com/Tongsuo/download/raw/master/curl-Linux-X64)       | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-Linux-X64.asc) |
+| macOS(arm64) | [curl-macOS-ARM64](https://gitee.com/Tongsuo/download/raw/master/curl-macOS-ARM64)       | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-macOS-ARM64.asc) |
+| macOS(x64) | [curl-macOS-X64](https://gitee.com/Tongsuo/download/raw/master/curl-macOS-X64)       | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-macOS-X64.asc) |
+| Windows(x64)  | [curl-Windows-X64.exe](https://gitee.com/Tongsuo/download/raw/master/curl-Windows-X64.exe) | [gpg](https://gitee.com/Tongsuo/download/raw/master/curl-Windows-X64.exe.asc) |
 
 ### wrk，支持国密HTTPS性能测试
 
