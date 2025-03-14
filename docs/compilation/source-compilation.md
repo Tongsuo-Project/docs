@@ -4,6 +4,7 @@ sidebar_position: 2
 # 源码编译
 
 ## 源码准备
+
 ```bash
 # clone master 分支代码
 git clone https://github.com/Tongsuo-Project/Tongsuo.git
@@ -20,9 +21,11 @@ git clone https://github.com/Tongsuo-Project/Tongsuo.git
 - --api=x.y.z：x.y.z 为 API 版本号，是下列值之一：0.9.8, 1.0.0, 1.0.1, 1.0.2, 1.1.0, 1.1.1, 3.0，默认值：3.0，如果要编译与 openssl-1.1.1 兼容的 API，需要指定--api=1.1.1.
 - -Wl,-rpath,/opt/tongsuo/lib：rpath 指定编译出的 openssl 二进制程序依赖的 libcrypto.so 和 libssl.so 目录，效果与 `LD_LIBRARY_PATH` 和 `DYLD_LIBRARY_PATH`环境变量一样
 - --debug：如果需要 gdb 或者 lldb 调试需要加这个选项
+
 ## 编译安装
 
 ### 本地编译
+
 ```bash
 # 配置选项
 ./config --prefix=/opt/tongsuo -Wl,-rpath,/opt/tongsuo/lib enable-ec_elgamal enable-paillier enable-ntls
@@ -36,9 +39,11 @@ make -j
 # 安装
 make install
 ```
-### ios 交叉编译
+
+### ios交叉编译
 
 #### 编译
+
 ```bash
 # 配置环境变量
 export CC=clang;
@@ -57,8 +62,32 @@ perl configdata.pm --dump
 # 编译
 make -j
 ```
-#### 打包 
+
+#### 打包
 
 使用 lipo 工具打包（网上文章很多，此处略）
 
-#### android 交叉编译（后续补上）
+### Android交叉编译
+
+在macOS上编译android-arm64，步骤如下。Linux或其他操作系统仅供参考。
+
+首先，安装NDK：
+
+```bash
+# 这里以macOS为例, 下载NDK23
+curl -OLv https://dl.google.com/android/repository/android-ndk-r23c-darwin.zip
+unzip android-ndk-r23c-darwin.zip
+sudo cp android-ndk-r23c-darwin.zip /opt/
+```
+
+编译Tongsuo：
+
+```bash
+export ANDROID_NDK_ROOT=/opt/android-ndk-r23c
+PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH
+
+# 按需配置选项
+./Configure android-arm64
+
+make -j
+```
