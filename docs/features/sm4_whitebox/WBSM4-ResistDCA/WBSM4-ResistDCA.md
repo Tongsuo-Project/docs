@@ -129,7 +129,7 @@ T0+T1+T2+T3：
 
 ## 2 代码实现的详细流程
 
-&emsp;&emsp;SM4白盒实现的代码包括查找表的生成和加密算法的实现两部分。代码由C语言编写，矩阵运算库为[WBMatrix](https://github.com/scnucrypto/WBMatrix)，代码主要参考了[Xiao-Lai白盒SM4实现[1]](https://github.com/Nexus-TYF/Xiao-Lai-White-box-SM4)和[Bai-Wu白盒SM4实现[2]](https://github.com/Nexus-TYF/Bai-Wu-White-box-SM4)和[SM4的实现](https://github.com/NEWPLAN/SMx/tree/master/SM4)。
+&emsp;&emsp;SM4白盒实现的代码包括查找表的生成和加密算法的实现两部分。代码由C语言编写，矩阵运算库为[WBMatrix](https://github.com/scnucrypto/WBMatrix)，代码主要参考了[Xiao-Lai白盒SM4实现[1]](https://github.com/Nexus-TYF/Xiao-Lai-White-box-SM4)和[Bai-Wu白盒SM4实现[2]](https://github.com/Nexus-TYF/Bai-Wu-White-box-SM4)和[SM4的实现](https://github.com/NEWPLAN/SMx/tree/master/SM4)。本文对应的代码实现链接为[WBSM4-ResistDCA](https://github.com/Tongsuo-Project/Tongsuo/pull/716)。
 
 ### 2.1 查找表的生成
 
