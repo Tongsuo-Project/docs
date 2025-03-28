@@ -26,7 +26,7 @@ $$
 
 其中$P$是一个从$p$比特到$p$比特的随机双射。分别将$(H \circ F \circ G^{-1})$和$(P \circ K \circ H^{-1})$固化成查找表，将$F$和$K$的逻辑隐藏。值得注意的是，在上述串行子部件“头”“尾”两端的置乱编码为外部编码（external encoding）。例如在本例中，需要使用$G$对输入进行编码，使用$P^{-1}$对输出进行解码。
 
-### 2.2 Xiao-Lai方案（wbsm4-xiao-stkey）
+### 2.2 Xiao-Lai方案
 
 Xiao-Lai方案 <sup>[2]</sup> 使用可逆仿射变换作为置乱编码，将轮函数$F\left( X_{i},X_{i+1},X_{i+2},X_{i+3},rk_{i} \right)$执行过程分为三个部分，分别进行$X_{i+1},X_{i+2},X_{i+3}$三个状态的异或、原SM4算法中的非线性变换$\tau$与线性变换$L$，以及$X_{i}$与$X''$的异或操作。
 
@@ -118,66 +118,21 @@ $$
 
 在生成查找表阶段，上述每轮加解密所使用的查找表以及复合仿射变换在可信环境下生成；在加解密阶段，通过上述查找表及复合仿射变换在白盒环境下实现原始SM4算法的加解密逻辑。
 
-### 2.3 Jin-Bao方案（wbsm4-jin-stkey）
-
-Jin-Bao方案 <sup>[3]</sup> 使用随机非线性双射作为置乱编码。由于非线性双射不具有仿射变换的类线性性质，需要使用查找表辅助进行异或操作。为了减少查找表占用的空间，使用级联编码（Concatenation Code）实现非线性双射。对于$k$个双射函数$F_{i}(i = 1,\cdots,k)$，若输入为$n$比特的函数$F$满足：
-
-$$
-F(b) = \left\lbrack F_{1}\left( b_{1},\cdots,b_{n_{1}} \right),F_{2}\left( b_{n_{1} + 1},\cdots,b_{n_{2}} \right),\cdots, \right.\ \left. \ F_{k}\left( b_{n_{k - 1} + 1},\cdots,b_{n} \right) \right\rbrack
-$$
-
-其中$b=(b_1, \ldots, b_n)$，$b_{j}, j=1, \ldots, n$表示单个比特，则函数$F$是通过级联编码实现的映射。通过这种方式可以将一个较大的双射函数$F$分解为$k$个较小的双射函数$F_{i}$。假设每个较小双射函数的输入长度相同，对于一个从$n$比特到$m$比特的函数$F$，直接使用查找表实现所需的存储空间为$m \cdot 2^{n}$比特，使用级联编码实现所需的存储空间仅需$m \cdot 2^{\frac{n}{k}}$比特。在本方案中的所有非线性变换都使用8个4比特双射构成的级联编码实现。类似地，Jin-Bao方案将SM4轮函数的计算过程分为三个部分。
-
-**(1) 计算$X_{i}' = X_{i+1} \oplus X_{i+2} \oplus X_{i+3}$**
-
-依次计算：
-
-$$
-\begin{aligned}
-    XT_{i} &= Ea_i[P_{i+1}^{-1}[X_{i+1}]\; \oplus P_{i+2}^{-1}[X_{i+2}]] \\
-    X_{i}' &= E_i[Ea_{i}^{-1}[XT_{i}]\; \oplus P_{i+3}^{-1}[X_{i+3}]] ,
-\end{aligned}
-$$
-
-其中$P_{i+j}(j=1,2,3)$、$Ea_i$、$E_i$均是32比特到32比特的随机非线性双射。分别将上述两式固化为查找表，在进行加解密时依次查表。
-
-**(2) 计算$X''_i = T(X_{i}'\oplus rk_i)$**
-
-与Xiao-Lai方案类似，同样将轮密钥隐藏到S盒中，并将非线性变换$\tau$与线性变换$L$结合在一起，添加输入输出置乱编码。不同的是本方案使用非线性双射作为置乱编码。记上一部分的输出置乱编码$E_i = (E_{i0}, \ldots, E_{i7})$，上一阶段的输出$X_{i}'=(x_0, \ldots, x_3)^\top$，SM4中的线性变换矩阵$L=(L_0, \ldots, L_3)$，则本阶段计算过程可以表示为：
-
-$$
-\begin{aligned}
-    Xa_{i} &= Qa_i[L_0 \cdot S_{i0}(E_{i0}^{-1} || E_{i1}^{-1}[x_0])] \\
-    Xb_{i} &= Qb_i[L_1 \cdot S_{i1}(E_{i2}^{-1} || E_{i3}^{-1}[x_1])] \\
-    Xc_{i} &= Qc_i[L_2 \cdot S_{i2}(E_{i4}^{-1} || E_{i5}^{-1}[x_2])] \\
-    Xd_{i} &= Qd_i[L_3 \cdot S_{i3}(E_{i6}^{-1} || E_{i7}^{-1}[x_3])]  ,
-\end{aligned}
-$$
-
-其中$Qa_i, Qb_i, Qc_i, Qd_i$均是32比特到32比特的随机非线性双射，$||$表示并行操作。同样地，将上述每式固化为查找表，在进行加解密时依次查表。
-
-**(3) 计算$X_{i+4}=X_{i}\oplus X''_i$**
-
-与第一阶段类似，本阶段同样使用异或辅助表实现加解密逻辑，依次计算：
-
-$$
-\begin{aligned}
-    Xe_{i} &= Qe_i[P_{i}^{-1}[X_{i}]\; \oplus Qa_{i}^{-1}[Xa_{i}]] \\
-    Xf_{i} &= Qf_i[Qe_{i}^{-1}[Xe_{i}]\; \oplus Qb_{i}^{-1}[Xb_{i}]] \\
-    Xg_{i} &= Qg_i[Qf_{i}^{-1}[Xf_{i}]\; \oplus Qc_{i}^{-1}[Xc_{i}]] \\
-    X_{i+4} &= P_{i+4}[Qg_{i}^{-1}[Xg_{i}]\; \oplus Qd_{i}^{-1}[Xd_{i}]] \\
-\end{aligned}
-$$
-
-其中$Qe_i, Qf_i, Qg_i$均是32比特到32比特的随机非线性双射。同样地，将上述每式固化为查找表，在进行加解密时依次查表。
-
-### 2.4 Xiao-Lai方案的动态白盒版本（wbsm4-xiao-dykey）
+### 2.3 Xiao-Lai方案的动态白盒版本（wbsm4-xiao-dykey）
 
 Xiao-Lai方案的动态白盒版本将原本隐藏在S盒中的轮密钥提取出来，经过混淆后单独存放，并使用异或辅助表完成轮密钥与SM4中间状态的异或。Xiao-Lai方案的动态白盒版本在轮函数的第一部分计算$X_{i+1},X_{i+2},X_{i+3}$三个状态的异或，以第三部分计算$X_{i}$与$X''$的异或过程与原始Xiao-Lai方案方案相同，这里不再赘述。下面将着重介绍轮函数第二部分的计算过程：
 
 **(1) 生成白盒密钥$wbrk_i$**
 
-受文献[4]启发，在可信环境下，对原始SM4轮密钥依次添加随机可逆仿射变换混淆和随机非线性双射混淆，生成白盒密钥：
+受文献[4]启发，在可信环境下，对原始SM4轮密钥依次添加随机可逆仿射变换混淆和随机非线性双射混淆，生成白盒密钥。Jin-Bao方案 <sup>[3]</sup> 中同样使用了随机非线性双射作为置乱编码。由于非线性双射不具有仿射变换的类线性性质，需要使用查找表辅助进行异或操作。为了减少查找表占用的空间，使用级联编码（Concatenation Code）实现非线性双射。对于$k$个双射函数$F_{i}(i = 1,\cdots,k)$，若输入为$n$比特的函数$F$满足：
+
+$$
+F(b) = \left\lbrack F_{1}\left( b_{1},\cdots,b_{n_{1}} \right),F_{2}\left( b_{n_{1} + 1},\cdots,b_{n_{2}} \right),\cdots, \right.\ \left. \ F_{k}\left( b_{n_{k - 1} + 1},\cdots,b_{n} \right) \right\rbrack
+$$
+
+其中$b=(b_1, \ldots, b_n)$，$b_{j}, j=1, \ldots, n$表示单个比特，则函数$F$是通过级联编码实现的映射。通过这种方式可以将一个较大的双射函数$F$分解为$k$个较小的双射函数$F_{i}$。假设每个较小双射函数的输入长度相同，对于一个从$n$比特到$m$比特的函数$F$，直接使用查找表实现所需的存储空间为$m \cdot 2^{n}$比特，使用级联编码实现所需的存储空间仅需$m \cdot 2^{\frac{n}{k}}$比特。在本方案中的所有非线性变换都使用8个4比特双射构成的级联编码实现。
+
+白盒密钥定义为：
 
 $$
 wbrk_i = R_i[Ek_i[rk_i]]
@@ -213,7 +168,7 @@ $$
 
 ### 3.1 占用空间大小
 
-Xiao-Lai方案和Jin-Bao方案的存储空间大小分析已在参考文献[2]、[3]中给出，这里不再赘述。对于Xiao-Lai方案的动态白盒版本每一轮所需的存储空间为：
+Xiao-Lai方案的存储空间大小分析已在参考文献[2]中给出，这里不再赘述。对于Xiao-Lai方案的动态白盒版本每一轮所需的存储空间为：
 - 第一部分包含 3 个 32 比特到 32 比特的仿射变换: $3 \times (32 \times 32 + 32) = 396(\text{B})$。
 - 第二部分包含 4 个 8 比特输入，32 比特输出的查找表：$4 \times 2^{8} \times 32 = 4096(\text{B})$；
 以及1个64比特输入，32比特输出的异或辅助表。在异或辅助表使用4个8比特的级联编码实现的情况下，需要的存储空间为：$2^{8+8} \times 8 \times 4 = 262144(\text{B})$。
@@ -221,10 +176,10 @@ Xiao-Lai方案和Jin-Bao方案的存储空间大小分析已在参考文献[2]�
 
 共需要$32 \times (396 + 4094 + 262144 + 264) \approx 8.145(\text{MB})$的存储空间。在更新密钥时，Xiao-Lai方案的动态白盒版本无需更新所有查找表，只需要更新白盒密钥即可。将三种方案所需的存储空间大小以及更新密钥的开销总结在下表中。
 
-|     方案     |           Xiao-Lai方案           |         Jin-Bao方案         | Xiao-Lai方案的动态白盒版本 |
-| :----------: | :------------------------------: | :--------------------------: | :------------------------: |
-| 所需存储空间 | 148.625KB | 320KB |          8.145MB          |
-| 更新密钥开销 |            148.625KB            |            320KB            |            128B            |
+|     方案     |           Xiao-Lai方案            | Xiao-Lai方案的动态白盒版本 |
+| :----------: | :------------------------------: | :------------------------: |
+| 所需存储空间 | 148.625KB |         8.145MB          |
+| 更新密钥开销 |            148.625KB                  |            128B            |
 
 ### 3.2 性能
 
@@ -236,7 +191,7 @@ Xiao-Lai方案和Jin-Bao方案的存储空间大小分析已在参考文献[2]�
 - 编译器：Apple clang version 16.0.0 (clang-1600.0.26.6)
 - 构建方式：
 ```bash
-./config --prefix=/usr/local enable-wbsm4-xiao-stkey enable-wbsm4-xiao-dykey enable-wbsm4-jin-stkey
+./config --prefix=/usr/local enable-wbsm4-xiao-dykey
 make -j8
 make install
 
@@ -244,12 +199,10 @@ make install
 cc -O3 -o benchmark_wbsm4 benchmark_wbsm4.c -lcrypto
 ```
 
-测试结果如下所示。由于白盒实现中加入了大量的混淆操作，SM4白盒方案的执行速度相较于普通SM4算法较慢。在三种SM4白盒方案中，Jin-Bao方案的所有操作均通过查找表完成，无需进行矩阵乘法运算，因此执行速度相对较快。
+测试结果如下所示。由于白盒实现中加入了大量的混淆操作，SM4白盒方案的执行速度相较于普通SM4算法较慢。
 
 ```
 [sm4-cbc                       ] Time: 0.537 s | Speed: 148985.78 KB/s
-[wbsm4-xiao-stkey-cbc          ] Time: 115.692 s | Speed: 691.49 KB/s
-[wbsm4-jin-stkey-cbc           ] Time: 9.601 s | Speed: 8332.04 KB/s
 [wbsm4-xiao-dykey-cbc          ] Time: 122.615 s | Speed: 652.45 KB/s
 ```
 
@@ -262,24 +215,24 @@ cc -O3 -o benchmark_wbsm4 benchmark_wbsm4.c -lcrypto
 
 白盒多样性指的是查找表所有可能的构造方法的个数，它由输入输出置乱编码有多少种选择以及密钥空间决定。查找表种的输入输出置乱编码都是随机选择的，白盒多样性的值越大，攻击者就越难分析出隐藏在查找表中的密钥信息以及输入输出置乱编码。
 
-Xiao-Lai方案和Jin-Bao方案的白盒多样性计算过程已在参考文献[2]、[3]中给出，这里不再赘述。$\mathbf{GF}(2)$上的$n \times n$的可逆矩阵数量为$\prod_{i=1}^{n-1}\left(2^n-2^i\right)$ <sup>[4]</sup> ，因此Xiao-Lai方案的动态白盒版本在每一轮的白盒多样性可以估算为：
+Xiao-Lai方案的白盒多样性计算过程已在参考文献[2]中给出，这里不再赘述。$\mathbf{GF}(2)$上的$n \times n$的可逆矩阵数量为$\prod_{i=1}^{n-1}\left(2^n-2^i\right)$ <sup>[4]</sup> ，因此Xiao-Lai方案的动态白盒版本在每一轮的白盒多样性可以估算为：
 - 第一部分：$(2^{1023} \times 2^{32})^3 \times (2^{63} \times 2^{8})^{4} \approx 2^{3449}$；
 - 第二部分：4 个 8 比特输入，32 比特输出的查找表的白盒多样性为：$(2^{63} \times 2^{8})^{4} \times 2^{32} \times (2^{1023} \times 2^{32}) \approx 2^{1371}$；
 添加异或辅助表后，在每一轮中额外引入的白盒多样性为：$(16!)^{8} \times (2^{63} \times 2^8)^{4 \times 2} \approx 2^{992}$，第二部分的白盒多样性总共为$2^{1371} \times 2^{992} = 2^{2293}$；
 - 第三部分：$(2^{1023} \times 2^{32})^3 \times 2^{32} \approx 2^{3197}$。
 
 将三种方案每一轮的白盒多样性总结在下表中。
-|   方案   | Xiao-Lai方案 |                     Jin-Bao方案                     | Xiao-Lai方案的动态白盒版本 |
-| :------: | :----------: | :---------------------------------------------------: | :------------------------: |
-| 第一部分 | $2^{3449}$ |        $(16!)^{8 \times 5} \approx 2^{1770}$        |        $2^{3449}$        |
-| 第二部分 | $2^{1371}$ | $2^{32} \times (16!)^{8 \times 5} \approx 2^{1802}$ |        $2^{2293}$        |
-| 第三部分 | $2^{3197}$ |        $(16!)^{8 \times 9} \approx 2^{3186}$        |        $2^{3197}$        |
+|   方案   | Xiao-Lai方案   | Xiao-Lai方案的动态白盒版本 |
+| :------: | :----------: | :------------------------: |
+| 第一部分 | $2^{3449}$ |             $2^{3449}$        |
+| 第二部分 | $2^{1371}$ |        $2^{2293}$        |
+| 第三部分 | $2^{3197}$ |              $2^{3197}$        |
 
 **b. 白盒含混度**
 
 白盒含混度用于衡量有多少种不同的构造方法会产生相同的查找表。通常情况下，白盒含混度可以用白盒多样性与查找表个数的比值来计算。同样地，白盒含混度的值越大，攻击者就越难从特定的查找表中推断出隐藏的输入输出置乱编码和密钥。
 
-Xiao-Lai方案和Jin-Bao方案的白盒含混度计算过程已在参考文献[2]、[3]中给出，这里不再赘述。Xiao-Lai方案的动态白盒版本在每一轮的白盒含混度可以估算为：
+Xiao-Lai方案的白盒含混度计算过程已在参考文献[2]中给出，这里不再赘述。Xiao-Lai方案的动态白盒版本在每一轮的白盒含混度可以估算为：
 - 第一部分：$ (2^{63} \times 2^{8})^{4} \approx 2^{284}$；
 - 第二部分：4 个 8 比特输入，32 比特输出的查找表的白盒含混度为：$(2^{63} \times 2^{8})^{4} \times 2^{32} \approx 2^{316}$；
 添加异或辅助表后，在每一轮中额外引入的白盒含混度为：$(2^8!)^{4} \approx 2^{846}$，第二部分的白盒含混度总共为$2^{316} \times 2^{846} = 2^{1162}$；
@@ -287,22 +240,22 @@ Xiao-Lai方案和Jin-Bao方案的白盒含混度计算过程已在参考文献[2
 
 将三种方案每一轮的白盒含混度总结在下表中。
 
-|   方案   | Xiao-Lai方案 | Jin-Bao方案 | Xiao-Lai方案的动态白盒版本 |
-| :------: | :----------: | :----------: | :------------------------: |
-| 第一部分 | $2^{284}$ | $2^{708}$ |        $2^{284}$        |
-| 第二部分 | $2^{316}$ | $2^{386}$ |        $2^{1162}$        |
-| 第三部分 | $2^{1087}$ | $2^{1416}$ |        $2^{1087}$        |
+|   方案   | Xiao-Lai方案 | Xiao-Lai方案的动态白盒版本 |
+| :------: | :----------: | :------------------------: |
+| 第一部分 | $2^{284}$ |         $2^{284}$        |
+| 第二部分 | $2^{316}$ |        $2^{1162}$        |
+| 第三部分 | $2^{1087}$ |        $2^{1087}$        |
 
 ## 4 使用示例
 
 ### 4.1 编译选项
 
-相关 PR 链接：[#717](https://github.com/Tongsuo-Project/Tongsuo/pull/717)。
+相关 PR 链接：[#723](https://github.com/Tongsuo-Project/Tongsuo/pull/723)。
 
 白盒sm4方案默认关闭，可以通过编译选项开启。
 
 ```bash
-./config --prefix=/usr/local enable-wbsm4-xiao-stkey enable-wbsm4-xiao-dykey enable-wbsm4-jin-stkey
+./config --prefix=/usr/local  enable-wbsm4-xiao-dykey 
 make -j
 make install
 ```
@@ -312,45 +265,46 @@ make install
 铜锁已将白盒SM4核心组件封装，可以通过EVP接口访问。下面给出一个使用Xiao-Lai方案的动态白盒版本（wbsm4-xiao-dykey）进行加密的示例。
 
 ```c
+// 生成白盒密钥及查找表
+int mode = EVP_KDF_WBSM4KDF_MODE_ENCRYPT;
 OSSL_PARAM params[4];
 params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, k, SM4_BLOCK_SIZE);
-params[1] = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_CIPHER, "wbsm4-xiao-dykey", 0);
-params[2] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
-params[3] = OSSL_PARAM_construct_end();
+params[1] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
+params[2] = OSSL_PARAM_construct_end();
 
 EVP_KDF *kdf = EVP_KDF_fetch(NULL, "WBSM4KDF", NULL);
 EVP_KDF_CTX *kctx = EVP_KDF_CTX_new(kdf);
-ret = EVP_KDF_CTX_set_params(kctx, params);
+EVP_KDF_CTX_set_params(kctx, params);
 size_t len_wbsm4ctx = EVP_KDF_CTX_get_kdf_size(kctx);
 
 unsigned char *wbsm4ctx = (unsigned char *)OPENSSL_malloc(len_wbsm4ctx);
-ret = EVP_KDF_derive(kctx, wbsm4ctx, len_wbsm4ctx, NULL);
+EVP_KDF_derive(kctx, wbsm4ctx, len_wbsm4ctx, NULL);
 
+// 初始化加密上下文
 const EVP_CIPHER *cipher = EVP_get_cipherbyname("WBSM4-XIAO-DYKEY-ECB");
 EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
 EVP_EncryptInit(cipher_ctx, cipher, (unsigned char *)wbsm4ctx, NULL);
 
-memcpy(block, input, SM4_BLOCK_SIZE);
-EVP_EncryptUpdate(cipher_ctx, block, &outl, block, SM4_BLOCK_SIZE);
+// 加密
+EVP_EncryptUpdate(cipher_ctx, block, &outl, input, SM4_BLOCK_SIZE);
 
-// 只有Xiao-Lai方案的动态白盒版本（wbsm4-xiao-dykey）可以通过以下方式更新密钥
-int update_key = 1;
+/* 在不更换整个查找表的情况下，更新白盒密钥 */
+mode = EVP_KDF_WBSM4KDF_MODE_UPDATE_KEY;
 params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, new_k, SM4_BLOCK_SIZE);
-params[1] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_WBSM4_UPDATE_KEY, &update_key);
+params[1] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
 params[2] = OSSL_PARAM_construct_end();
-uint8_t *wbrk_buf = (uint8_t *)OPENSSL_malloc(32 * sizeof(uint32_t));
+uint8_t *wbrk_buf = (uint8_t *)OPENSSL_malloc(SM4_KEY_SCHEDULE * sizeof(uint32_t));
 
 // EVP_KDF_derive()根据输入的update_key推导出32个轮密钥，并进行混淆生成对应的白盒密钥，存放在wbrk_buf中
-ret = EVP_KDF_derive(kctx, wbrk_buf, 32 * sizeof(uint32_t), params);
+EVP_KDF_derive(kctx, wbrk_buf, SM4_KEY_SCHEDULE * sizeof(uint32_t), params);
 
-params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, wbrk_buf, 32 * sizeof(uint32_t));
-params[1] = OSSL_PARAM_construct_end();
 // 更新白盒密钥到加密上下文对象
-ret = EVP_CIPHER_CTX_set_params(cipher_ctx, params); 
+params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, wbrk_buf, SM4_KEY_SCHEDULE * sizeof(uint32_t));
+params[1] = OSSL_PARAM_construct_end();
+EVP_CIPHER_CTX_set_params(cipher_ctx, params); 
 
-memcpy(block, input, SM4_BLOCK_SIZE);
-outl = SM4_BLOCK_SIZE;
-ret = EVP_EncryptUpdate(cipher_ctx, block, &outl, block, SM4_BLOCK_SIZE);
+// 使用新密钥加密
+EVP_EncryptUpdate(cipher_ctx, block, &outl, input, SM4_BLOCK_SIZE);
 ```
 
 ## 参考文献
