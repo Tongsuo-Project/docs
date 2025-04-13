@@ -118,7 +118,7 @@ $$
 
 在生成查找表阶段，上述每轮加解密所使用的查找表以及复合仿射变换在可信环境下生成；在加解密阶段，通过上述查找表及复合仿射变换在白盒环境下实现原始SM4算法的加解密逻辑。
 
-### 2.3 Xiao-Lai方案的动态白盒版本（wbsm4-xiao-dykey）
+### 2.3 基于Xiao-Lai方案的动态SM4白盒算法（wbsm4-xiao-dykey）
 
 Xiao-Lai方案的动态白盒版本将原本隐藏在S盒中的轮密钥提取出来，经过混淆后单独存放，并使用异或辅助表完成轮密钥与SM4中间状态的异或。Xiao-Lai方案的动态白盒版本在轮函数的第一部分计算$X_{i+1},X_{i+2},X_{i+3}$三个状态的异或，以第三部分计算$X_{i}$与$X''$的异或过程与原始Xiao-Lai方案方案相同，这里不再赘述。下面将着重介绍轮函数第二部分的计算过程：
 
@@ -168,18 +168,20 @@ $$
 
 ### 3.1 占用空间大小
 
-Xiao-Lai方案的存储空间大小分析已在参考文献[2]中给出，这里不再赘述。对于Xiao-Lai方案的动态白盒版本每一轮所需的存储空间为：
+Xiao-Lai方案加密所需的存储空间大小分析已在参考文献[2]中给出，这里不再赘述。对于Xiao-Lai方案的动态白盒版本每一轮加密所需的存储空间为：
 - 第一部分包含 3 个 32 比特到 32 比特的仿射变换: $3 \times (32 \times 32 + 32) = 396(\text{B})$。
 - 第二部分包含 4 个 8 比特输入，32 比特输出的查找表：$4 \times 2^{8} \times 32 = 4096(\text{B})$；
 以及1个64比特输入，32比特输出的异或辅助表。在异或辅助表使用4个8比特的级联编码实现的情况下，需要的存储空间为：$2^{8+8} \times 8 \times 4 = 262144(\text{B})$。
 - 第三部分包含2个 32 比特到 32 比特的仿射变换: $2 \times (32 \times 32 + 32) = 264(\text{B})$。
 
-共需要$32 \times (396 + 4094 + 262144 + 264) \approx 8.145(\text{MB})$的存储空间。在更新密钥时，Xiao-Lai方案的动态白盒版本无需更新所有查找表，只需要更新白盒密钥即可。将三种方案所需的存储空间大小以及更新密钥的开销总结在下表中。
+共需要$32 \times (396 + 4094 + 262144 + 264) \approx 8.145(\text{MB})$的存储空间。在更新密钥时，Xiao-Lai方案的动态白盒版本无需更新所有查找表，只需要更新白盒密钥即可。将白盒方案加密时所需的存储空间大小以及更新密钥的开销总结在下表中。
 
 |     方案     |           Xiao-Lai方案            | Xiao-Lai方案的动态白盒版本 |
 | :----------: | :------------------------------: | :------------------------: |
 | 所需存储空间 | 148.625KB |         8.145MB          |
 | 更新密钥开销 |            148.625KB                  |            128B            |
+
+值得注意的是，添加混淆后白盒SM4方案的轮函数不再是对合运算，因此一般使用两套查找表分别进行加密和解密运算。在铜锁项目中，为了节省存储查找表的空间，在生成白盒查找表时使用一个原始SM4密钥生成加密与解密共用的查找表。其中，在轮函数的第一部分和第二部分加密和解密可以共用查找表，因此加密与解密共用的查找表相比加密用的查找表所需的额外空间为轮函数第三部分的 $32 \times 264 = 8448(\text{B})$,加密与解密共用的查找表所需的存储空间总共约为8.153MB。
 
 ### 3.2 性能
 
@@ -199,13 +201,86 @@ make install
 cc -O3 -o benchmark_wbsm4 benchmark_wbsm4.c -lcrypto
 ```
 
-测试结果如下所示。由于白盒实现中加入了大量的混淆操作，SM4白盒方案的执行速度相较于普通SM4算法较慢。
+`benchmark_wbsm4.c`：
+```c
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <openssl/evp.h>
+#include <openssl/kdf.h>
+#include <openssl/core_dispatch.h>
+#include <openssl/core_names.h>
+
+#define SM4_BLOCK_SIZE 16
+#define BUF_SIZE (1024 * 8)
+#define TEST_ROUNDS 10000
+
+void benchmark(const char *cipher_name) {
+    uint8_t k[SM4_BLOCK_SIZE] = {0};
+    uint8_t iv[SM4_BLOCK_SIZE] = {0};
+    uint8_t input[BUF_SIZE] = {0};
+    uint8_t ciphertext[BUF_SIZE + SM4_BLOCK_SIZE];
+    int ciphertext_len = 0;
+    int outl = 0;
+    unsigned char *wbsm4ctx = NULL;
+
+    memset(input, 'A', BUF_SIZE);
+
+    if (strncmp(cipher_name, "wbsm4-", 6) == 0) {
+        int mode = EVP_KDF_WBSM4KDF_MODE_GEN_TABLE;
+        OSSL_PARAM params[4];
+        params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, k, SM4_BLOCK_SIZE);
+        params[2] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
+        params[3] = OSSL_PARAM_construct_end();
+
+        EVP_KDF *kdf = EVP_KDF_fetch(NULL, "WBSM4KDF", NULL);
+        EVP_KDF_CTX *kctx = EVP_KDF_CTX_new(kdf);
+        size_t len_wbsm4ctx = EVP_KDF_CTX_get_kdf_size(kctx);
+        wbsm4ctx = (unsigned char *)OPENSSL_malloc(len_wbsm4ctx);
+        EVP_KDF_derive(kctx, wbsm4ctx, len_wbsm4ctx, params);
+    }
+
+    const EVP_CIPHER *cipher = EVP_get_cipherbyname(cipher_name);
+    EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
+
+    clock_t start = clock();
+    for (int i = 0; i < TEST_ROUNDS; i++) {
+        if (strncmp(cipher_name, "wbsm4-", 6) == 0) {
+            EVP_EncryptInit(cipher_ctx, cipher, (unsigned char *)wbsm4ctx, iv);
+        }
+        else {
+            EVP_EncryptInit(cipher_ctx, cipher, k, iv);
+        }
+        EVP_EncryptUpdate(cipher_ctx, ciphertext, &outl, input, BUF_SIZE);
+        ciphertext_len = outl;
+        EVP_EncryptFinal(cipher_ctx, ciphertext + outl, &outl);
+        ciphertext_len += outl;
+    }
+
+    clock_t end = clock();
+    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+    double total_kb = (double)BUF_SIZE * TEST_ROUNDS / (1024.0);
+    double speed = total_kb / elapsed;
+
+    printf("[%-30s] Time: %.3f s | Speed: %.2f KB/s\n", cipher_name, elapsed, speed);
+}
+
+int main() {
+    benchmark("sm4-cbc");
+    benchmark("wbsm4-xiao-dykey-cbc");
+
+    return 0;
+}
+```
+
+测试结果如下所示，这里同时对比了Xiao-Lai方案 <sup>[2]</sup> （wbsm4-xiao-stkey）和Jin-Bao方案 <sup>[3]</sup> （wbsm4-jin-stkey）。由于白盒实现中加入了大量的混淆操作，SM4白盒方案的执行速度相较于普通SM4算法较慢。
 
 ```
 [sm4-cbc                       ] Time: 0.537 s | Speed: 148985.78 KB/s
 [wbsm4-xiao-dykey-cbc          ] Time: 122.615 s | Speed: 652.45 KB/s
+[wbsm4-xiao-stkey-cbc          ] Time: 115.692 s | Speed: 691.49 KB/s
+[wbsm4-jin-stkey-cbc           ] Time: 9.601 s | Speed: 8332.04 KB/s
 ```
-
 
 ### 3.3 安全性
 
@@ -221,7 +296,7 @@ Xiao-Lai方案的白盒多样性计算过程已在参考文献[2]中给出，这
 添加异或辅助表后，在每一轮中额外引入的白盒多样性为：$(16!)^{8} \times (2^{63} \times 2^8)^{4 \times 2} \approx 2^{992}$，第二部分的白盒多样性总共为$2^{1371} \times 2^{992} = 2^{2293}$；
 - 第三部分：$(2^{1023} \times 2^{32})^3 \times 2^{32} \approx 2^{3197}$。
 
-将三种方案每一轮的白盒多样性总结在下表中。
+将白盒方案每一轮的白盒多样性总结在下表中。
 |   方案   | Xiao-Lai方案   | Xiao-Lai方案的动态白盒版本 |
 | :------: | :----------: | :------------------------: |
 | 第一部分 | $2^{3449}$ |             $2^{3449}$        |
@@ -238,7 +313,7 @@ Xiao-Lai方案的白盒含混度计算过程已在参考文献[2]中给出，这
 添加异或辅助表后，在每一轮中额外引入的白盒含混度为：$(2^8!)^{4} \approx 2^{846}$，第二部分的白盒含混度总共为$2^{316} \times 2^{846} = 2^{1162}$；
 - 第三部分：$2^{1023} \times 2^{32} \times 2^{32} \approx 2^{1087}$。
 
-将三种方案每一轮的白盒含混度总结在下表中。
+将白盒方案每一轮的白盒含混度总结在下表中。
 
 |   方案   | Xiao-Lai方案 | Xiao-Lai方案的动态白盒版本 |
 | :------: | :----------: | :------------------------: |
@@ -266,19 +341,17 @@ make install
 
 ```c
 // 生成白盒密钥及查找表
-int mode = EVP_KDF_WBSM4KDF_MODE_ENCRYPT;
+EVP_KDF *kdf = EVP_KDF_fetch(NULL, "WBSM4KDF", NULL);
+EVP_KDF_CTX *kctx = EVP_KDF_CTX_new(kdf);
+size_t len_wbsm4ctx = EVP_KDF_CTX_get_kdf_size(kctx);
+unsigned char *wbsm4ctx = (unsigned char *)OPENSSL_malloc(len_wbsm4ctx);
+
+int mode = EVP_KDF_WBSM4KDF_MODE_GEN_TABLE;
 OSSL_PARAM params[4];
 params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, k, SM4_BLOCK_SIZE);
 params[1] = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
 params[2] = OSSL_PARAM_construct_end();
-
-EVP_KDF *kdf = EVP_KDF_fetch(NULL, "WBSM4KDF", NULL);
-EVP_KDF_CTX *kctx = EVP_KDF_CTX_new(kdf);
-EVP_KDF_CTX_set_params(kctx, params);
-size_t len_wbsm4ctx = EVP_KDF_CTX_get_kdf_size(kctx);
-
-unsigned char *wbsm4ctx = (unsigned char *)OPENSSL_malloc(len_wbsm4ctx);
-EVP_KDF_derive(kctx, wbsm4ctx, len_wbsm4ctx, NULL);
+EVP_KDF_derive(kctx, wbsm4ctx, len_wbsm4ctx, params);
 
 // 初始化加密上下文
 const EVP_CIPHER *cipher = EVP_get_cipherbyname("WBSM4-XIAO-DYKEY-ECB");
@@ -299,7 +372,7 @@ uint8_t *wbrk_buf = (uint8_t *)OPENSSL_malloc(SM4_KEY_SCHEDULE * sizeof(uint32_t
 EVP_KDF_derive(kctx, wbrk_buf, SM4_KEY_SCHEDULE * sizeof(uint32_t), params);
 
 // 更新白盒密钥到加密上下文对象
-params[0] = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, wbrk_buf, SM4_KEY_SCHEDULE * sizeof(uint32_t));
+params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_WBSM4_WBRK, wbrk_buf, SM4_KEY_SCHEDULE * sizeof(uint32_t));
 params[1] = OSSL_PARAM_construct_end();
 EVP_CIPHER_CTX_set_params(cipher_ctx, params); 
 
