@@ -61,7 +61,7 @@ ISW 将运行过程中的每一个中间状态 s 拆分成 n 个比特，即 $s 
 
 ### 2.3 比特切片技术
 
-比特切片技术（bitslicing）由   和   在   中提出。该方案通过充分运用 CPU 的技能能力，提升对于布尔电路实现的密码算法或其他结构的运行速度。
+比特切片技术（bitslicing）[3]是对于基于布尔实现的软件程序的常用提升方法。该方案通过充分运用 CPU 的技能能力，通过并行计算提升对于布尔电路实现的密码算法或其他结构的运行速度。
 具体来说，考虑一个布尔实现的加密电路 E 的输入为 128比特的集合 [ $x_1$ ,... , $x_{128}$]，那么，在常用的64位 CPU 上的比特切片技术如下：
 
 **输入**：64 组待加密明文{ $x^1$,..., $x^{64}$ }。
@@ -102,7 +102,12 @@ $x^1$ = [ $x^2_1$ , ... , $x^2_{128}$] = [ $\tilde{x}^1$ , ... , $\tilde{x}^{128
 
 $t = 1$
 
-for $i \in [1,...,n]$ do { $t = t \cdot (a_i \oplus b_i \oplus 1)$}
+for $i \in [1,...,n]$ do 
+{ 
+
+$t = t \cdot (a_i \oplus b_i \oplus 1)$
+
+}
 
 return t
 
@@ -148,7 +153,12 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 ```
 
 ### 输出程序
+符合 tongsuo 使用规范的 SM4 白盒加密程序。
 
+
+## 4 安全性分析及程序测试
+
+###
 
 
 
@@ -170,4 +180,4 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 [8]Biryukov A, Udovenko A. Dummy shuffling against algebraic attacks in white-box implementations[C]//Annual International Conference on the Theory and Applications of Cryptographic Techniques. Cham: Springer International Publishing, 2021: 219-248.
 
-[9]Ishai Y, Sahai A, Wagner D. Private circuits: Securing hardware against probing attacks[C]//Advances in Cryptology-CRYPTO 2003: 23rd Annual International Cryptology Conference, Santa Barbara, California, USA, August 17-21, 2003. Proceedings 23. Springer Berlin Heidelberg, 2003: 463-481.
+[9]Rebeiro C, Selvakumar D, Devi A S L. Bitslice implementation of AES[C]//International Conference on Cryptology and Network Security. Berlin, Heidelberg: Springer Berlin Heidelberg, 2006: 203-212.
