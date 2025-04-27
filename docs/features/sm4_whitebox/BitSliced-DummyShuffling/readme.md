@@ -10,11 +10,11 @@
 虚拟洗牌方案是迄今为止唯一一个可以达到其所声明的安全性的方案，因此备受关注。
 
 虚拟洗牌方案是 **WhibOx19** 白盒竞赛的三个优胜方案之一，并在欧密 2021 中由其设计者 Biryukov 和 Udovenko 公布具体细节。
-它旨在对抗差分计算攻击，采用冗余操作来掩盖真实计算的值。
+它旨在对抗代数攻击，采用冗余操作来掩盖真实计算的值。对于不同的明文，dummy shuffling 会选择不同的主槽，使得敏感中间变量并不出现在 Trace 的固定位置，进一步提升了安全性。
 虚拟洗牌方案需要配合掩码方案才能达到预期的安全性。
-其中，使用线性掩码即可达到预期的安全性。
+其中，结合线性掩码即可达到预期的安全性。
 值得一提的是，虚拟洗牌方案的实现效率及低，因此，在 WhibOx19 竞赛中使用者采用了比特切片（bitslice）的实现方式。
-然而，公布的论文[8]中并未提及该方案的具体实现细节，只给出了该方案的伪代码，而这个伪代码本身并无法进行比特切片操作。
+然而，公布的论文 [8] 中并未提及该方案的具体实现细节，只给出了该方案的伪代码，而这个伪代码本身并无法进行比特切片操作。
 除此之外，论文并未公布生成器的相关代码，这使得使用虚拟洗牌方案保护密码算法在实际应用中的安全性成为了一个没有解决的难题。
 
 ### 1.1 本研究工作
@@ -37,14 +37,14 @@
 
 该方案的具体执行流程如下：
 
-1）输入混淆阶段：
+1) 输入混淆阶段：
 生成 $(Ns-1)$ 个虚拟输入并与真实输入（即主槽输入）混淆。混淆后的输入记为 $\{p_1, \ldots, p_{N_s}\}$。其中，真实输入的位置 $p_m$ 是随机的，即满足概率：
 
 $$
 Pr [ p_m = i ] = 1 / N_s, i =1,2,...,N_s
 $$
 
-2)计算阶段：对于每一个索引，计算
+2) 计算阶段：对于每一个索引，计算
 
 $$
 c_i = E(p_i)
@@ -52,7 +52,7 @@ $$
 
 其中 $E$ 为预期执行的加密函数。
 
-3)输出选择阶段：提取主槽输出 $c_m$ 作为输出。
+3) 输出选择阶段：提取主槽输出 $c_m$ 作为输出。
 
 ### 2.2 掩码
 
@@ -119,11 +119,14 @@ P(x) = x^{128} \oplus x^{101} \oplus x^{40} \oplus x^{19} \oplus x^{6} \oplus x^
 $$
 
 ### 输入接口
+
+从主程序中打开程序minimal.py，修改密钥和相关参数，保存并且关闭程序。
+
 该生成器的必要输入为：SM4算法使用的密钥，需选择是加密程序还是解密程序，是否混合 boolean dummy shuffling，槽数，并行加/解密组数，掩码方案的阶数。输出为白盒加密程序。
 
 参数调整方式如下：
 
-```matlab
+```python
 % 密钥
 KEY = "samplekey1234567"
 % 加解密
@@ -149,21 +152,24 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 ### 4.1 安全性分析
 
 此程序的安全性与虚拟洗牌方案相同，是迄今为止唯一一个较为有效抵抗差分计算分析及其变体的白盒保护方案。
-但是该攻击无法抵抗故障注入攻击（DFA）等主动攻击。
+但是该方案无法抵抗故障注入攻击（DFA）等主动攻击 [10]。
 
 ### 4.2 运行效率测试
 
 测试环境如下：
 
 - CPU型号：Intel(R) Xeon(R) Gold 5317 CPUs
+- 内存：503.5 GB
 - Linux版本：Ubuntu 20.04
 
-分别测试并行加密 64 组明文的比特切片实现方式，与未使用比特切片的实现：的速度比较。
+#### 4.2.1 并行加密 64 组明文的比特切片与未使用比特切片的速度比较
+
+分别测试从并行加密 64 组明文的比特切片实现方式，与未使用比特切片的实现的速度比较。(默认参数：slot = 2, 掩码结构 $x=a \oplus b$)
 经过 500,000 次测试，统计分布图及加密速度平均值，得到如下结果：
 
-|     方案     |          未使用比特切片方案         | Xiao-Lai方案的动态白盒版本 |
+|     方案     |          未使用比特切片方案         | 并行加密 64 组明文的比特切片方案 |
 | :----------: | :------------------------------: | :------------------------: |
-| 代码大小      | 1.12 MB   | 1.12 MB |
+| 生成代码大小      | 1.04 MB   | 1.04 MB |
 | 加密速度（均值） | 6553.55 bits/s |         411020.16 bits/s          |
 
 ![不使用比特切片的加密速度分布](figures/NoBitslice.jpg)
@@ -175,23 +181,50 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 从加密速度分布图来看，该两种方案的加密速度分布一致，实验结果可以作比较。
 进一步的，从均值来看，使用 64 组并行的比特切片实现的平均速度约为此前的 62.72 倍，符合预期。
 
+#### 4.2.2 并行加密 64 组明文的比特切片与 Tongsuo SM4 标准实现的速度比较
+
+分别测试从并行加密 64 组明文的比特切片实现方式，与Tongsuo SM4 标准实现的速度比较。(参数：slot = 1, 不使用掩码)
+经过 500,000 次测试，得到如下结果：
+
+|     方案     |         Tongsuo 标准实现方案         | 并行加密 64 组明文的比特切片方案 |
+| :----------: | :------------------------------: | :------------------------: |
+| 生成代码大小     |   0.02 MB   |  0.22 MB   |
+| 加密速度（均值） | 169381624.74 bits/s |         1895384.32 bits/s          |
+
+生成的白盒加密程序存储大小会略大于标准实现，由于T表实现的缓存机制，多次运行时，布尔加密速度会显著低于标准实现。
+
 
 ## 5 使用范例
 
 修改密钥等必要参数的过程如 3.2 节所示。修改后，执行命令：
 
-```matlab
+```
+./minimal.py
+```
+
+即可生成相应的、符合 tongsuo 使用规范的加密/解密程序。然后可以运行对应的测试程序以进行速度与正确性验证。
+
+执行加密程序需要提前将明文二进制字符串放入文件test_plaintext中，然后执行：
+
+```
 ./buildrun_enc.sh
 ```
 
-或
+类似的，执行解密程序需要提前将密文二进制字符串放入文件test_ciphertext中，然后执行：
 
-```matlab
+```
 ./buildrun_dec.sh
 ```
 
-即可生成相应的、符合 tongsuo 使用规范的加密/解密程序。
 
+输出以二进制字符串的格式存储在test_plaintext和test_ciphertext文件中，用户可以通过二进制读写模式打开。
+
+此外，我们也提供了辅助的正确性验证程序 “reference_impl.py”，可以随机生成任意组明文写入 test_plaintext 中，并调用标准库的sm4加密将密文保存至 test_ciphertext ，方便用户进行正确性验证。
+
+调用示例如下：
+
+![运行示例1](figures/output1.png)
+![运行示例2](figures/output2.png)
 
 ## 参考文献
 [1]Chow S ,  Eisen P A ,  Johnson H , et al. White-Box Cryptography and an AES Implementation[J]. Springer, Berlin, Heidelberg, 2002.
@@ -211,3 +244,5 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 [8]Biryukov A, Udovenko A. Dummy shuffling against algebraic attacks in white-box implementations[C]//Annual International Conference on the Theory and Applications of Cryptographic Techniques. Cham: Springer International Publishing, 2021: 219-248.
 
 [9]Rebeiro C, Selvakumar D, Devi A S L. Bitslice implementation of AES[C]//International Conference on Cryptology and Network Security. Berlin, Heidelberg: Springer Berlin Heidelberg, 2006: 203-212.
+
+[10]Goubin L, Rivain M, Wang J. Defeating state-of-the-art white-box countermeasures with advanced gray-box attacks[J]. IACR Transactions on Cryptographic Hardware and Embedded Systems, 2020, 2020(3).
