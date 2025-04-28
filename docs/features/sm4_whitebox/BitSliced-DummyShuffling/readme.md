@@ -6,11 +6,12 @@
 由于其适用于移动支付、数字版权管理等商用场景，在近些年愈发受到关注。
 
 从保护方案上来看，主流的、受到关注的白盒保护方案共分为三种：基于编码（Encode）的白盒保护方案 [1, 2]、基于高次非线性掩码（Masking）的白盒保护方案 [3] 以及基于虚拟洗牌的白盒保护方案 [4]。
-而随着白盒密码的发展，编码和掩码保护方案被证明是脆弱的、容易受到差分计算分析（differential computation attack，DCA）攻击 [5, 6]。
+而随着白盒密码的发展，编码和掩码保护方案被证明是脆弱的，由于无法引入随机数，所以使得内存迹中的变量与猜测部分密钥信息就可以获取的可预测变量存在较高的相关性，容易受到差分计算分析（differential computation attack，DCA）攻击 [5, 6]。
 虚拟洗牌方案是迄今为止唯一一个可以达到其所声明的安全性的方案，因此备受关注。
 
 虚拟洗牌方案是 **WhibOx19** 白盒竞赛的三个优胜方案之一，并在欧密 2021 中由其设计者 Biryukov 和 Udovenko 公布具体细节。
 它旨在对抗代数攻击，采用冗余操作来掩盖真实计算的值。对于不同的明文，dummy shuffling 会选择不同的主槽，使得敏感中间变量并不出现在 Trace 的固定位置，进一步提升了安全性。
+
 虚拟洗牌方案需要配合掩码方案才能达到预期的安全性。
 其中，结合线性掩码即可达到预期的安全性。
 值得一提的是，虚拟洗牌方案的实现效率及低，因此，在 WhibOx19 竞赛中使用者采用了比特切片（bitslice）的实现方式。
@@ -165,12 +166,13 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 #### 4.2.1 并行加密 64 组明文的比特切片与未使用比特切片的速度比较
 
 分别测试从并行加密 64 组明文的比特切片实现方式，与未使用比特切片的实现的速度比较。(默认参数：slot = 2, 掩码结构 $x=a \oplus b$)
+
 经过 500,000 次测试，统计分布图及加密速度平均值，得到如下结果：
 
 |     方案     |          未使用比特切片方案         | 并行加密 64 组明文的比特切片方案 |
 | :----------: | :------------------------------: | :------------------------: |
 | 生成代码大小      | 1.04 MB   | 1.04 MB |
-| 加密速度（均值） | 6553.55 bits/s |         411020.16 bits/s          |
+| 加密速度（均值） | 0.82 KB/s |         51.38 KB/s          |
 
 ![不使用比特切片的加密速度分布](figures/NoBitslice.jpg)
 ![64组并行的比特切片的加密速度分布](figures/BitSlice.jpg)
@@ -183,13 +185,14 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 #### 4.2.2 并行加密 64 组明文的比特切片与 Tongsuo SM4 标准实现的速度比较
 
-分别测试从并行加密 64 组明文的比特切片实现方式，与Tongsuo SM4 标准实现的速度比较。(参数：slot = 1, 不使用掩码)
+分别测试从并行加密 64 组明文的比特切片实现方式，与Tongsuo SM4 标准实现的速度比较。(不使用掩码)
+
 经过 500,000 次测试，得到如下结果：
 
-|     方案     |         Tongsuo 标准实现方案         | 并行加密 64 组明文的比特切片方案 |
-| :----------: | :------------------------------: | :------------------------: |
-| 生成代码大小     |   0.02 MB   |  0.22 MB   |
-| 加密速度（均值） | 169381624.74 bits/s |         1895384.32 bits/s          |
+|     方案     |         Tongsuo 标准实现方案         | 并行加密 64 组明文的比特切片方案(slot=1) | 并行加密 64 组明文的比特切片方案(slot=2) |
+| :----------: | :------------------------------: | :------------------------: |:------------------------: |
+| 生成代码大小     |   0.02 MB   |  0.22 MB   | 0.42 MB |
+| 加密速度（均值） | 21172.7 KB/s |         236.92 KB/s          | 123.99 KB/s | 
 
 生成的白盒加密程序存储大小会略大于标准实现，由于T表实现的缓存机制，多次运行时，布尔加密速度会显著低于标准实现。
 
@@ -225,6 +228,37 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 ![运行示例1](figures/output1.png)
 ![运行示例2](figures/output2.png)
+
+API示例:
+
+```python
+import subprocess
+
+# 调用 minimal.py
+output = subprocess.check_output(["./minimal.py"])
+print("minimal.py 输出:")
+print(output)
+
+# 调用加密 build.sh
+output = subprocess.check_output(["./buildrun_enc.sh"])
+print("build.sh 输出:")
+print(output)
+```
+
+```python
+import subprocess
+
+# 调用 minimal.py
+output = subprocess.check_output(["./minimal.py"])
+print("minimal.py 输出:")
+print(output)
+
+# 调用解密 build.sh
+output = subprocess.check_output(["./buildrun_dec.sh"])
+print("build.sh 输出:")
+print(output)
+```
+
 
 ## 参考文献
 [1]Chow S ,  Eisen P A ,  Johnson H , et al. White-Box Cryptography and an AES Implementation[J]. Springer, Berlin, Heidelberg, 2002.
