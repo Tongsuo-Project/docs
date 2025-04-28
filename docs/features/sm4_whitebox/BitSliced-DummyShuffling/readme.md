@@ -224,10 +224,19 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 此外，我们也提供了辅助的正确性验证程序 “reference_impl.py”，可以随机生成任意组明文写入 test_plaintext 中，并调用标准库的sm4加密将密文保存至 test_ciphertext ，方便用户进行正确性验证。
 
-调用示例如下：
+main函数:
 
-![运行示例1](figures/output1.png)
-![运行示例2](figures/output2.png)
+```c
+int main() {
+    B plaintext[16*64];
+    B ciphertext[16*64];
+    while (fread(plaintext, 1, 16*slice, stdin) == 16*slice) {
+        AES_128_encrypt(ciphertext, plaintext);
+        fwrite(ciphertext, 1, 16*slice, stdout);
+    }
+    return 0;
+}
+```
 
 API示例:
 
@@ -258,6 +267,11 @@ output = subprocess.check_output(["./buildrun_dec.sh"])
 print("build.sh 输出:")
 print(output)
 ```
+
+调用示例如下：
+
+![运行示例1](figures/output1.png)
+![运行示例2](figures/output2.png)
 
 
 ## 参考文献
