@@ -171,7 +171,7 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 |     方案     |          未使用比特切片方案         | 并行加密 64 组明文的比特切片方案 |
 | :----------: | :------------------------------: | :------------------------: |
-| 生成代码大小      | 1.04 MB   | 1.04 MB |
+| 生成代码大小      | 5.24 MB   | 5.24 MB |
 | 加密速度（均值） | 0.82 KB/s |         51.38 KB/s          |
 
 ![不使用比特切片的加密速度分布](figures/NoBitslice.jpg)
@@ -191,87 +191,75 @@ ct = mask_circuit(ct, DOM(rand=rand, nshares=2))
 
 |     方案     |         Tongsuo 标准实现方案         | 并行加密 64 组明文的比特切片方案(slot=1) | 并行加密 64 组明文的比特切片方案(slot=2) |
 | :----------: | :------------------------------: | :------------------------: |:------------------------: |
-| 生成代码大小     |   0.02 MB   |  0.22 MB   | 0.42 MB |
+| 生成代码大小     |   0.02 MB   |  0.87 MB   | 1.92 MB |
 | 加密速度（均值） | 21172.7 KB/s |         236.92 KB/s          | 123.99 KB/s | 
 
-生成的白盒加密程序存储大小会略大于标准实现，由于T表实现的缓存机制，多次运行时，布尔加密速度会显著低于标准实现。
+生成的白盒加密程序存储大小会大于标准实现，当使用字符串存储白盒电路时生成代码大小约为 0.22 MB(slot=1)，但是由于Tongsuo不允许长度长度超过“509”的字符串，使用unsigned char存储电路会造成生成代码大小增至0.87 MB。
+
+由于T表实现的缓存机制，多次运行时，布尔加密速度会显著低于标准实现。
 
 
-## 5 使用范例
+## 5 API使用范例
 
-修改密钥等必要参数的过程如 3.2 节所示。修改后，执行命令：
+修改密钥、加解密、dummy shuffling槽数、掩码等必要参数的过程如 3.2 节所示。
 
-```
-./minimal.py
-```
+面向用户的API：
 
-即可生成相应的、符合 tongsuo 使用规范的加密/解密程序。然后可以运行对应的测试程序以进行速度与正确性验证。
-
-执行加密程序需要提前将明文二进制字符串放入文件test_plaintext中，然后执行：
-
-```
-./buildrun_enc.sh
-```
-
-类似的，执行解密程序需要提前将密文二进制字符串放入文件test_ciphertext中，然后执行：
-
-```
-./buildrun_dec.sh
+SM4加解密函数：
+```c
+void SM4_128(B *out, B *in);
 ```
 
 
-输出以二进制字符串的格式存储在test_plaintext和test_ciphertext文件中，用户可以通过二进制读写模式打开。
-
-此外，我们也提供了辅助的正确性验证程序 “reference_impl.py”，可以随机生成任意组明文写入 test_plaintext 中，并调用标准库的sm4加密将密文保存至 test_ciphertext ，方便用户进行正确性验证。
-
-main函数:
+调用API测试实例与代码：
 
 ```c
-int main() {
-    B plaintext[16*64];
-    B ciphertext[16*64];
-    while (fread(plaintext, 1, 16*slice, stdin) == 16*slice) {
-        AES_128_encrypt(ciphertext, plaintext);
-        fwrite(ciphertext, 1, 16*slice, stdout);
-    }
+#include <stdio.h>
+#include "crypto/bsdummyshuffling.h"
+
+/* KEY = "samplekey1234567" 73616d706c656b657931323334353637 */
+/* 748074076200569c9deeb1dec18a7910 74 80 74 07 62 00 56 9c 9d ee b1 de c1 8a 79 10 */
+/* 7711451c1922325b858cb74b6d5db070 77 11 45 1c 19 22 32 5b 85 8c b7 4b 6d 5d b0 70 */
+
+int main(void) {
+    unsigned char plaintext[16*64]={0x74, 0x80, 0x74, 0x07, 0x62, 0x00, 0x56, 0x9c, 0x9d, 0xee, 0xb1, 0xde, 0xc1, 0x8a, 0x79, 0x10};
+    unsigned char expected[16*64]= {0x77, 0x11, 0x45, 0x1c, 0x19, 0x22, 0x32, 0x5b, 0x85, 0x8c, 0xb7, 0x4b, 0x6d, 0x5d, 0xb0, 0x70};
+    unsigned char ciphertext[16*64]={0};
+    int i;
+    
+    SM4_128(ciphertext, plaintext);
+    for (i=0; i<16; i++)
+        if (ciphertext[i]!=expected[i]){
+            printf("failed\n");
+            break;
+        }
     return 0;
 }
 ```
 
-API示例:
+```c
+#include <stdio.h>
+#include "crypto/bsdummyshuffling.h"
 
-```python
-import subprocess
+/* KEY = "samplekey1234567" 73616d706c656b657931323334353637 */
+/* 748074076200569c9deeb1dec18a7910 74 80 74 07 62 00 56 9c 9d ee b1 de c1 8a 79 10 */
+/* 7711451c1922325b858cb74b6d5db070 77 11 45 1c 19 22 32 5b 85 8c b7 4b 6d 5d b0 70 */
 
-# 调用 minimal.py
-output = subprocess.check_output(["./minimal.py"])
-print("minimal.py 输出:")
-print(output)
-
-# 调用加密 build.sh
-output = subprocess.check_output(["./buildrun_enc.sh"])
-print("build.sh 输出:")
-print(output)
+int main(void) {
+    unsigned char ciphertext[16*64]={0x77, 0x11, 0x45, 0x1c, 0x19, 0x22, 0x32, 0x5b, 0x85, 0x8c, 0xb7, 0x4b, 0x6d, 0x5d, 0xb0, 0x70};
+    unsigned char expected[16*64]= {0x74, 0x80, 0x74, 0x07, 0x62, 0x00, 0x56, 0x9c, 0x9d, 0xee, 0xb1, 0xde, 0xc1, 0x8a, 0x79, 0x10};
+    unsigned char plaintext[16*64]={0};
+    int i;
+    
+    SM4_128(plaintext, ciphertext);
+    for (i=0; i<16; i++)
+        if (plaintext[i]!=expected[i]){
+            printf("failed\n");
+            break;
+        }
+    return 0;
+}
 ```
-
-```python
-import subprocess
-
-# 调用 minimal.py
-output = subprocess.check_output(["./minimal.py"])
-print("minimal.py 输出:")
-print(output)
-
-# 调用解密 build.sh
-output = subprocess.check_output(["./buildrun_dec.sh"])
-print("build.sh 输出:")
-print(output)
-```
-
-调用示例如下：
-
-![运行示例1](figures/output1.png)
-![运行示例2](figures/output2.png)
 
 
 ## 参考文献
