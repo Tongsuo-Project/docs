@@ -6,7 +6,7 @@
 由于其适用于移动支付、数字版权管理等商用场景，在近些年愈发受到关注。
 
 从保护方案上来看，主流的、受到关注的白盒保护方案共分为三种：基于编码（Encode）的白盒保护方案 [1, 2]、基于高次非线性掩码（Masking）的白盒保护方案 [3] 以及基于虚拟洗牌的白盒保护方案 [4]。
-而随着白盒密码的发展，编码和掩码保护方案被证明是脆弱的，由于无法引入随机数，所以使得内存迹中的变量与猜测部分密钥信息就可以获取的可预测变量存在较高的相关性，容易受到差分计算分析（differential computation attack，DCA）攻击 [5, 6]。
+而随着白盒密码的发展，编码和掩码保护方案被证明是脆弱的，由于无法引入随机数，所以使得内存迹（程序执行期间记录下来的内存访问和操作的详细数据）中的变量与猜测部分密钥信息就可以获取的可预测变量存在较高的相关性，容易受到差分计算分析（differential computation attack，DCA）攻击 [5, 6]。
 虚拟洗牌方案是迄今为止唯一一个可以达到其所声明的安全性的方案，因此备受关注。
 
 虚拟洗牌方案是 **WhibOx19** 白盒竞赛的三个优胜方案之一，并在欧密 2021 中由其设计者 Biryukov 和 Udovenko 公布具体细节。
@@ -15,15 +15,15 @@
 虚拟洗牌方案需要配合掩码方案才能达到预期的安全性。
 其中，结合线性掩码即可达到预期的安全性。
 值得一提的是，虚拟洗牌方案的实现效率及低，因此，在 WhibOx19 竞赛中使用者采用了比特切片（bitslice）的实现方式。
-然而，公布的论文 [8] 中并未提及该方案的具体实现细节，只给出了该方案的伪代码，而这个伪代码本身并无法进行比特切片操作。
+然而，公布的论文 [4] 中并未提及该方案的具体实现细节，只给出了该方案的伪代码，而这个伪代码本身并无法进行比特切片操作。
 除此之外，论文并未公布生成器的相关代码，这使得使用虚拟洗牌方案保护密码算法在实际应用中的安全性成为了一个没有解决的难题。
 
 ### 1.1 本研究工作
 
-基于上述考虑，本研究在 [8] 中提出的虚拟洗牌的伪代码的基础上，给出了虚拟洗牌方案的布尔电路实现方式。该实现方式可以直接使用比特切片，达到与 Biryukov 和 Udovenko 在 WhibOx 竞赛中同数量级的实现效率。
+基于上述考虑，本研究在 [4] 中提出的虚拟洗牌的伪代码的基础上，给出了虚拟洗牌方案的布尔电路实现方式。该实现方式可以直接使用比特切片，达到与 Biryukov 和 Udovenko 在 WhibOx 竞赛中同数量级的实现效率。
 同时，本方案给出针对 SM4 商用密码标准的白盒实现程序生成器。
 
-这一工作解决此前在工业中难以实现的虚拟洗牌方案的难题，真正落地实现了该方案在实际应用场景中的高效运行。
+这一工作解决此前在工业中难以实现的虚拟洗牌方案的难题，真正落地实现了该方案在实际应用场景中的高效运行。代码链接：[Tongsuo](https://github.com/Tongsuo-Project/Tongsuo/pull/728)
 
 ## 2 基础知识
 ### 2.1 虚拟洗牌
@@ -261,10 +261,6 @@ int main(void) {
 
 [6]Rivain M, Wang J. Analysis and improvement of differential computation attacks against internally-encoded white-box implementations[J]. IACR Transactions on Cryptographic Hardware and Embedded Systems, 2019: 225-255.
 
-[7]Biryukov A, Udovenko A. Dummy shuffling against algebraic attacks in white-box implementations[C]//Annual International Conference on the Theory and Applications of Cryptographic Techniques. Cham: Springer International Publishing, 2021: 219-248.
+[7]Rebeiro C, Selvakumar D, Devi A S L. Bitslice implementation of AES[C]//International Conference on Cryptology and Network Security. Berlin, Heidelberg: Springer Berlin Heidelberg, 2006: 203-212.
 
-[8]Biryukov A, Udovenko A. Dummy shuffling against algebraic attacks in white-box implementations[C]//Annual International Conference on the Theory and Applications of Cryptographic Techniques. Cham: Springer International Publishing, 2021: 219-248.
-
-[9]Rebeiro C, Selvakumar D, Devi A S L. Bitslice implementation of AES[C]//International Conference on Cryptology and Network Security. Berlin, Heidelberg: Springer Berlin Heidelberg, 2006: 203-212.
-
-[10]Goubin L, Rivain M, Wang J. Defeating state-of-the-art white-box countermeasures with advanced gray-box attacks[J]. IACR Transactions on Cryptographic Hardware and Embedded Systems, 2020, 2020(3).
+[8]Goubin L, Rivain M, Wang J. Defeating state-of-the-art white-box countermeasures with advanced gray-box attacks[J]. IACR Transactions on Cryptographic Hardware and Embedded Systems, 2020, 2020(3).
