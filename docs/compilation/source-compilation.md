@@ -54,7 +54,9 @@ export CROSS_SDK=iPhoneOS.sdk
 export PATH="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
 
 # 配置选项（那只是要编译32位的将 ios64 替换成 ios 即可）
-./config ios64-cross no-shared no-dso no-hw no-engine enable-ntls --prefix=/opt/tongsuo-ios64
+./Configure ios64-cross no-shared no-dso no-hw no-engine enable-ntls --prefix=/opt/tongsuo-ios64
+
+注意：如果编译 iOS arm64 架构模拟器版本，使用 darwin64-arm64-cc； x86_64 架构模拟器版本，使用 darwin64-x86_64-cc，并根据 Arm 或 Intel 芯片类型配置环境变量
 
 # 查看 config 结果
 perl configdata.pm --dump
