@@ -15,9 +15,10 @@ title: 社区
 
 | 成员姓名 | PMC公司 | 邮箱                          |
 |------|-------|-----------------------------|
+| 洪澄  | 蚂蚁集团   | vince.hc@antgroup.com |
 | 张天佳  | 阿里云   | tianjia.ztj@alibaba-inc.com |
 | 李延昭  | 天威诚信  | li_yanzhao@itrus.com.cn     |
-| 杨洋   | 蚂蚁集团  | paul@tongsuo.net            |
+| 杨洋   | OpenSSL技术咨询委员会  | paul@tongsuo.net            |
 | 金添   | 问天量子  | jintian@qasky.com           |
 | 张志磊  | 360   | zhangzhilei@360.cn          |
 | 李昆阳  | 豪符检测  | li_kunyang@cdhfct.com       |
