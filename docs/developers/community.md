@@ -22,3 +22,4 @@ title: 社区
 | 金添   | 问天量子  | jintian@qasky.com           |
 | 张志磊  | 360   | zhangzhilei@360.cn          |
 | 李昆阳  | 豪符检测  | li_kunyang@cdhfct.com       |
+| 徐峥  | 浪潮信息  | xuzheng@ieisystem.com       |
