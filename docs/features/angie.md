@@ -84,7 +84,7 @@ $ make install
 
     # can be combined with regular RSA certificate:
     ssl_certificate  rsa.crt;
-    ssl_certificate  rsa.key;
+    ssl_certificate_key  rsa.key;
     ```
 
 - 配置国密套件
