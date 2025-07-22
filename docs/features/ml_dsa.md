@@ -51,6 +51,8 @@ make install
 
 ## 3 使用示例
 
+### 3.1 EVP接口调用
+
 Tongsuo支持使用EVP接口调用ML-DSA，下面给出一个使用ML-DSA进行签名的示例。
 
 ```c
@@ -88,4 +90,25 @@ EVP_PKEY_CTX_free(sctx);
 EVP_PKEY_CTX_free(vctx);
 EVP_PKEY_free(pkey);
 OPENSSL_free(sig);
+```
+
+### 3.2 命令行调用
+
+```bash
+# 签名与验证
+/usr/local/bin/openssl genpkey -algorithm ML-DSA-65 -out sk.pem
+/usr/local/bin/openssl pkey -in sk.pem -pubout -out pk.pem
+/usr/local/bin/openssl pkeyutl -sign -inkey sk.pem -in msg -out sig
+/usr/local/bin/openssl pkeyutl -verify -pubin -inkey pk.pem -in msg -sigfile sig
+
+# 本地自签名证书
+/usr/local/bin/openssl req \
+    -x509 \
+    -newkey mldsa65 \
+    -keyout localhost-mldsa.key \
+    -subj /CN=localhost \
+    -addext subjectAltName=DNS:localhost \
+    -days 30 \
+    -nodes \
+    -out localhost-mldsa.crt
 ```
