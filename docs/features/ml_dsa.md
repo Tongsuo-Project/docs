@@ -41,7 +41,7 @@ sidebar_position: 999
 
 相关 PR 链接：[#742](https://github.com/Tongsuo-Project/Tongsuo/pull/742)。
 
-Tongsuo默认实现了ML-DSA-65变体，ML-DSA算法默认关闭，可以通过编译选项开启。
+Tongsuo实现了ML-DSA-65变体，ML-DSA算法默认关闭，可以通过编译选项开启。
 
 ```bash
 ./config enable-ml_dsa
@@ -98,8 +98,15 @@ OPENSSL_free(sig);
 # 签名与验证
 /usr/local/bin/openssl genpkey -algorithm ML-DSA-65 -out sk.pem
 /usr/local/bin/openssl pkey -in sk.pem -pubout -out pk.pem
-/usr/local/bin/openssl pkeyutl -sign -inkey sk.pem -in msg -out sig
-/usr/local/bin/openssl pkeyutl -verify -pubin -inkey pk.pem -in msg -sigfile sig
+/usr/local/bin/openssl pkeyutl -sign -rawin -inkey sk.pem -in msg -out sig
+/usr/local/bin/openssl pkeyutl -verify -rawin -pubin -inkey pk.pem -in msg -sigfile sig
+
+# 手动设定种子以及私钥的格式
+/usr/local/bin/openssl genpkey -algorithm ML-DSA-65 -out sk.pem \
+-pkeyopt hexseed:43b460b6c5529d94d31d4482f5e9d2969dbe4bf831ae48bf0d76cd2cd00bbbb2 \
+-pkeyopt sk-format:seed-only
+# sk-format可选：seed-priv priv-only seed-only oqskeypair bare-seed bare-priv中的一个或多个
+# 选择多个时使用逗号连接
 
 # 本地自签名证书
 /usr/local/bin/openssl req \
