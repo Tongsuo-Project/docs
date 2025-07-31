@@ -259,7 +259,7 @@ gcc -Wall -g -o ./test ./test.c -I./ $INCS $DEPS $DEFINE -lpthread -ldl
 
 - 关闭 RSA_SIZE，先依赖 libbaba.a 再依赖 libopen.a，结果：编译链接成功，但执行出现段错误
 
-    ![image.png](img/rsa_szie_3.png)
+    ![image.png](img/rsa_szie_4.png)
 
 可以看出，编译是否成功和运行是否正常与代码本身、静态库依赖顺序有着重要的关系。
 以上两个问题就是改造过程中经常遇到的问题：一是编译链接失败，二是运行出现段错误。具体原因请看下面技术原理分析。
