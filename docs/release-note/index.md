@@ -50,9 +50,11 @@ https://github.com/Tongsuo-Project/Tongsuo/releases
 
 Tongsuo 在发布新版本的时候，会使用项目的私钥对源码包或二进制进行签名，可以使用公钥进行验签，以防止内容被篡改。公钥内容如下：
 
-[Tongsuo-public.key](https://gitee.com/Tongsuo/download/raw/master/Tongsuo-public.key)，验证Tongsuo源码包和生态软件的签名。
+* 版本号大于等于 8.4.1：[Tongsuo-public-new.key](./pk/tongsuo-202603.key)
 
-注意：对于 Tongsuo < 8.3.3 的源码包，验签使用 [BabaSSL-public.key](https://gitee.com/Tongsuo/download/raw/master/BabaSSL-public.key)。
+* 版本号在 8.3.3 和 8.4.0 之间：[Tongsuo-public-old.key](https://gitee.com/Tongsuo/download/raw/master/Tongsuo-public.key)
+
+* 版本号小于 8.3.3：[BabaSSL-public.key](https://gitee.com/Tongsuo/download/raw/master/BabaSSL-public.key)。
 
 ```bash
 # 下载公钥后导入
@@ -61,5 +63,5 @@ gpg --import Tongsuo-public.key
 # 下载软件和对应的签名文件
 
 # 使用公钥验证签名
-gpg --verify --default-key "Tongsuo Project Team" curl-Linux.asc curl-Linux
+gpg --verify curl-Linux.asc curl-Linux
 ```
