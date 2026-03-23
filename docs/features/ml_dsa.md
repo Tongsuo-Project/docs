@@ -39,9 +39,8 @@ sidebar_position: 999
 
 ## 2 构建方式
 
+Tongsuo 8.4 实现了 ML-DSA-65，该特性默认关闭，可以通过编译选项开启。
 相关 PR 链接：[#742](https://github.com/Tongsuo-Project/Tongsuo/pull/742)。
-
-Tongsuo实现了ML-DSA-65变体，ML-DSA算法默认关闭，可以通过编译选项开启。
 
 ```bash
 ./config enable-ml_dsa
@@ -49,9 +48,11 @@ make -j
 make install
 ```
 
+Tongsuo 8.5 实现了 ML-DSA-44/65/87 并默认启用该特性。
+
 ## 3 使用示例
 
-### 3.1 EVP接口调用
+### 3.1 EVP接口调用（8.4）
 
 Tongsuo支持使用EVP接口调用ML-DSA，下面给出一个使用ML-DSA进行签名的示例。
 
@@ -92,7 +93,54 @@ EVP_PKEY_free(pkey);
 OPENSSL_free(sig);
 ```
 
-### 3.2 命令行调用
+### 3.2 EVP接口调用（8.5）
+```c
+    EVP_PKEY *pkey = NULL;
+    EVP_PKEY_CTX *sctx = NULL, *vctx = NULL;
+    uint8_t m[99] = {0}, *sig = NULL;
+    size_t sig_len = 0;
+    int ret = 0;
+
+    /* 生成密钥 */
+    pkey = EVP_PKEY_Q_keygen(NULL, NULL, "ML-DSA-65");
+    if(pkey == NULL) {
+        printf("EVP_PKEY_Q_keygen fails.\n");
+        goto end;
+    }
+
+    /* 初始化签名上下文 */
+    sctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);
+    if(sctx == NULL) {
+        printf("EVP_PKEY_CTX_new_from_pkey fails.\n");
+        goto end;
+    }
+    EVP_PKEY_sign_message_init(sctx, NULL, NULL);
+    /* 获取签名大小 */
+    EVP_PKEY_sign(sctx, NULL, &sig_len, m, sizeof(m));
+    sig = OPENSSL_malloc(sig_len);
+    /* 生成签名 */
+    EVP_PKEY_sign(sctx, sig, &sig_len, m, sizeof(m));
+
+    /* 初始化验签上下文 */ 
+    vctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);
+    if(vctx == NULL) {
+        printf("EVP_PKEY_CTX_new_from_pkey fails.\n");
+        goto end;
+    }
+    EVP_PKEY_verify_message_init(vctx, NULL, NULL);
+    /* 验证签名 */ 
+    ret = EVP_PKEY_verify(vctx, sig, sig_len, m, sizeof(m));
+    printf("ML-DSA verify result: %d\n", ret);
+
+end:
+    EVP_PKEY_CTX_free(sctx);
+    EVP_PKEY_CTX_free(vctx);
+    EVP_PKEY_free(pkey);
+    OPENSSL_free(sig);
+```
+
+
+### 3.3 命令行调用
 
 ```bash
 # 签名与验证
@@ -102,11 +150,12 @@ OPENSSL_free(sig);
 /usr/local/bin/openssl pkeyutl -verify -rawin -pubin -inkey pk.pem -in msg -sigfile sig
 
 # 手动设定种子以及私钥的格式
+# Tongsuo 8.4 设定私钥格式的命令： -pkeyopt sk-format:seed-only 
+# Tongsuo 8.5 设定私钥格式的命令： -provparam ml-dsa.output_format=seed-only
+# sk-format可选：seed-priv priv-only oqskeypair seed-only bare-seed bare-priv
 /usr/local/bin/openssl genpkey -algorithm ML-DSA-65 -out sk.pem \
--pkeyopt hexseed:43b460b6c5529d94d31d4482f5e9d2969dbe4bf831ae48bf0d76cd2cd00bbbb2 \
--pkeyopt sk-format:seed-only
-# sk-format可选：seed-priv priv-only seed-only oqskeypair bare-seed bare-priv中的一个或多个
-# 选择多个时使用逗号连接
+-pkeyopt hexseed:43b460b6c5529d94d31d4482f5e9d2969dbe4bf831ae48bf0d76cd2cd00bbbb2
+
 
 # 本地自签名证书
 /usr/local/bin/openssl req \

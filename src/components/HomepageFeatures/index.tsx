@@ -27,7 +27,7 @@ const FeatureList: FeatureItem[] = [
         中国商用密码算法：SM2、SM3、SM4、祖冲之等 <br/>
         国际主流算法：ECDSA、RSA、AES、SHA等 <br/>
         同态加密算法：EC-ElGamal、Paillier等 <br/>
-        后量子密码学*：Kyber、Dilithium等 <br/>
+        后量子密码学：ML-KEM(Kyber)、ML-DSA(Dilithium)、SLH-DSA(SPHINCS+)等 <br/>
       </>
     ),
   },
@@ -39,9 +39,8 @@ const FeatureList: FeatureItem[] = [
         支持GB/T 38636-2020 TLCP标准，即双证书国密通信协议 <br/>
         支持RFC 8998，即TLS 1.3 +国密单证书 <br/>
         支持QUIC API <br/>
-        支持Delegated Credentials功能，基于draft-ietf-tls-subcerts-10 <br/>
+        支持Delegated Credentials功能 <br/>
         支持TLS证书压缩 <br/>
-        支持紧凑TLS协议* <br/>
       </>
     ),
   },
