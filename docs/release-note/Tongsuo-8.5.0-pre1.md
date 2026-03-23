@@ -29,10 +29,8 @@
    - SMTC Provider适配蚂蚁密码卡（atf_slibce）
    - 增加SDF框架和部分功能接口
    - 随机数熵源增加rtcode、rtmem和rtsock
-   - speed支持测试SM2密钥对生成和SM4密钥对生成（SDF方式）
+   - speed支持测试SM2密钥对生成和SM4密钥对生成
    - 增加TSAPI，支持常见密码学算法
-   - 增加SM2两方门限解密算法
-   - 增加SM2两方门限签名算法 [with work originated from FullyRobert]
+   - 增加SM2两方门限解密/签名算法
    - 增加商用密码检测和认证Provider，包括身份认证、完整性验证、算法自测试、随机数自检、 熵源健康测试；增加mod应用，包括生成SMTC配置、自测试功能
-   - SM4白盒密码算法，支持: wbsm4-xiaolai、wbsm4-baiwu、wbsm4-wsise
    - 基础代码迁移到OpenSSL 3.5.4
